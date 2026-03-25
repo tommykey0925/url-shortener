@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-03-26T00:00:00.000Z" agent="draw.io" version="24.0.0" type="device">
+  <diagram id="cicd" name="CI/CD Pipeline">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="URL Shortener - CI/CD Pipeline" style="text;html=1;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="450" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== CI PATH (Pull Request) ==================== -->
+        <mxCell id="ci_group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#FFA000;dashed=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="1500" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="ci_title" value="CI Pipeline (Pull Request)" style="text;html=1;fontSize=16;fontStyle=1;align=left;fillColor=#FFA000;fontColor=#FFFFFF;rounded=1;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="50" y="85" width="240" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Developer -->
+        <mxCell id="dev_ci" value="Developer" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.users;labelBackgroundColor=none;sketch=0;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="150" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- PR -->
+        <mxCell id="pr" value="Pull Request&#xa;(GitHub)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.codecommit;labelBackgroundColor=none;sketch=0;fontStyle=1;fontSize=10;fillColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="220" y="150" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- GitHub Actions CI -->
+        <mxCell id="gha_ci" value="GitHub Actions&#xa;(CI Workflow)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#24292E;fontColor=#FFFFFF;fontSize=11;fontStyle=1;strokeColor=#24292E;" vertex="1" parent="1">
+          <mxGeometry x="360" y="145" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- flox activate -->
+        <mxCell id="flox_ci" value="flox activate&#xa;(Dev Environment)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7B1FA2;fontColor=#FFFFFF;fontSize=11;fontStyle=1;strokeColor=#7B1FA2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="145" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Go Test/Build -->
+        <mxCell id="go_test" value="go test&#xa;go build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00ADD8;fontColor=#FFFFFF;fontSize=11;fontStyle=1;strokeColor=#00ADD8;" vertex="1" parent="1">
+          <mxGeometry x="770" y="130" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- pnpm build (CI) -->
+        <mxCell id="pnpm_ci" value="pnpm install&#xa;pnpm build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF3E00;fontColor=#FFFFFF;fontSize=11;fontStyle=1;strokeColor=#FF3E00;" vertex="1" parent="1">
+          <mxGeometry x="770" y="185" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- CI Result -->
+        <mxCell id="ci_result" value="CI Status&#xa;Check" style="shape=mxgraph.flowchart.decision;fillColor=#4CAF50;fontColor=#FFFFFF;fontSize=11;fontStyle=1;strokeColor=#4CAF50;size=0.4;" vertex="1" parent="1">
+          <mxGeometry x="960" y="140" width="80" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- CI Arrows -->
+        <mxCell id="ci_e1" style="rounded=1;strokeWidth=2;strokeColor=#333;" edge="1" source="dev_ci" target="pr" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ci_e1_l" value="git push" style="edgeLabel;html=1;fontSize=9;" vertex="1" connectable="0" parent="ci_e1">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="ci_e2" style="rounded=1;strokeWidth=2;strokeColor=#333;" edge="1" source="pr" target="gha_ci" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ci_e2_l" value="trigger" style="edgeLabel;html=1;fontSize=9;" vertex="1" connectable="0" parent="ci_e2">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="ci_e3" style="rounded=1;strokeWidth=2;strokeColor=#333;" edge="1" source="gha_ci" target="flox_ci" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ci_e4a" style="rounded=1;strokeWidth=2;strokeColor=#00ADD8;" edge="1" source="flox_ci" target="go_test" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ci_e4b" style="rounded=1;strokeWidth=2;strokeColor=#FF3E00;" edge="1" source="flox_ci" target="pnpm_ci" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ci_e5a" style="rounded=1;strokeWidth=2;strokeColor=#00ADD8;" edge="1" source="go_test" target="ci_result" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ci_e5b" style="rounded=1;strokeWidth=2;strokeColor=#FF3E00;" edge="1" source="pnpm_ci" target="ci_result" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== CD PATH - API (Backend) ==================== -->
+        <mxCell id="cd_api_group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;dashed=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="300" width="1500" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="cd_api_title" value="CD Pipeline - API (Backend: Go + Docker)" style="text;html=1;fontSize=16;fontStyle=1;align=left;fillColor=#1565C0;fontColor=#FFFFFF;rounded=1;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="50" y="305" width="360" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Merge to main -->
+        <mxCell id="merge" value="Merge to&#xa;main" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.codecommit;labelBackgroundColor=none;sketch=0;fontStyle=1;fontSize=10;fillColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="80" y="370" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- GitHub Actions CD -->
+        <mxCell id="gha_cd" value="GitHub Actions&#xa;(CD Workflow)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#24292E;fontColor=#FFFFFF;fontSize=11;fontStyle=1;strokeColor=#24292E;" vertex="1" parent="1">
+          <mxGeometry x="210" y="365" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- flox activate CD -->
+        <mxCell id="flox_cd" value="flox activate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7B1FA2;fontColor=#FFFFFF;fontSize=11;fontStyle=1;strokeColor=#7B1FA2;" vertex="1" parent="1">
+          <mxGeometry x="400" y="370" width="110" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Docker Build -->
+        <mxCell id="docker_build" value="Docker Build&#xa;(Go API)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2496ED;fontColor=#FFFFFF;fontSize=11;fontStyle=1;strokeColor=#2496ED;" vertex="1" parent="1">
+          <mxGeometry x="570" y="370" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ECR Push -->
+        <mxCell id="ecr_push" value="ECR Push&#xa;(Image Tag)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ecr;labelBackgroundColor=none;sketch=0;fontStyle=1;fontSize=10;fillColor=#ED7100;strokeColor=#ED7100;" vertex="1" parent="1">
+          <mxGeometry x="760" y="370" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Update kustomization.yaml -->
+        <mxCell id="kustomize" value="Update&#xa;kustomization.yaml&#xa;(new image tag)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455A64;fontColor=#FFFFFF;fontSize=10;fontStyle=1;strokeColor=#455A64;" vertex="1" parent="1">
+          <mxGeometry x="880" y="365" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Git Push (manifests) -->
+        <mxCell id="git_push" value="git push&#xa;(k8s manifests)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.codecommit;labelBackgroundColor=none;sketch=0;fontStyle=1;fontSize=10;fillColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="370" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- GitOps Loop -->
+        <mxCell id="gitops_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE4EC;strokeColor=#C62828;dashed=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="690" y="470" width="760" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="gitops_title" value="GitOps Loop (ArgoCD)" style="text;html=1;fontSize=14;fontStyle=1;align=left;fillColor=#C62828;fontColor=#FFFFFF;rounded=1;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="700" y="475" width="200" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ArgoCD Detect -->
+        <mxCell id="argocd_detect" value="ArgoCD&#xa;Detects Change&#xa;(auto-sync)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C62828;fontColor=#FFFFFF;fontSize=11;fontStyle=1;strokeColor=#C62828;" vertex="1" parent="1">
+          <mxGeometry x="730" y="520" width="130" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Git Repo (manifests) -->
+        <mxCell id="git_repo" value="Git Repository&#xa;(K8s Manifests)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.codecommit;labelBackgroundColor=none;sketch=0;fontStyle=1;fontSize=10;fillColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="940" y="525" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Sync to EKS -->
+        <mxCell id="eks_deploy" value="Deploy to&#xa;Amazon EKS" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.eks;labelBackgroundColor=none;sketch=0;fontStyle=1;fontSize=10;fillColor=#ED7100;strokeColor=#ED7100;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="520" width="55" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Running Pods -->
+        <mxCell id="pods_deployed" value="Go API Pods&#xa;(Updated)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00ADD8;fontColor=#FFFFFF;fontSize=11;fontStyle=1;strokeColor=#00ADD8;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="525" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- CD API Arrows -->
+        <mxCell id="cd_e1" style="rounded=1;strokeWidth=2;strokeColor=#333;" edge="1" source="merge" target="gha_cd" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cd_e1_l" value="trigger" style="edgeLabel;html=1;fontSize=9;" vertex="1" connectable="0" parent="cd_e1">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="cd_e2" style="rounded=1;strokeWidth=2;strokeColor=#333;" edge="1" source="gha_cd" target="flox_cd" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cd_e3" style="rounded=1;strokeWidth=2;strokeColor=#2496ED;" edge="1" source="flox_cd" target="docker_build" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cd_e4" style="rounded=1;strokeWidth=2;strokeColor=#ED7100;" edge="1" source="docker_build" target="ecr_push" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cd_e4_l" value="docker push" style="edgeLabel;html=1;fontSize=9;" vertex="1" connectable="0" parent="cd_e4">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="cd_e5" style="rounded=1;strokeWidth=2;strokeColor=#455A64;" edge="1" source="ecr_push" target="kustomize" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cd_e6" style="rounded=1;strokeWidth=2;strokeColor=#333;" edge="1" source="kustomize" target="git_push" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cd_e6_l" value="git commit &amp; push" style="edgeLabel;html=1;fontSize=9;" vertex="1" connectable="0" parent="cd_e6">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- GitOps arrows -->
+        <mxCell id="go_e1" style="rounded=1;strokeWidth=2;strokeColor=#C62828;" edge="1" source="git_push" target="git_repo" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1115" y="450" />
+              <mxPoint x="965" y="450" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="go_e2" style="rounded=1;strokeWidth=2;strokeColor=#C62828;" edge="1" source="git_repo" target="argocd_detect" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="go_e2_l" value="poll / webhook" style="edgeLabel;html=1;fontSize=9;" vertex="1" connectable="0" parent="go_e2">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="go_e3" style="rounded=1;strokeWidth=2;strokeColor=#C62828;" edge="1" source="argocd_detect" target="eks_deploy" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="go_e3_l" value="kubectl apply" style="edgeLabel;html=1;fontSize=9;" vertex="1" connectable="0" parent="go_e3">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="go_e4" style="rounded=1;strokeWidth=2;strokeColor=#C62828;" edge="1" source="eks_deploy" target="pods_deployed" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="go_e4_l" value="rolling update" style="edgeLabel;html=1;fontSize=9;" vertex="1" connectable="0" parent="go_e4">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- ==================== CD PATH - Web (Frontend) ==================== -->
+        <mxCell id="cd_web_group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;dashed=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="660" width="1500" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="cd_web_title" value="CD Pipeline - Web (Frontend: SvelteKit)" style="text;html=1;fontSize=16;fontStyle=1;align=left;fillColor=#2E7D32;fontColor=#FFFFFF;rounded=1;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="50" y="665" width="340" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Merge to main (web) -->
+        <mxCell id="merge_web" value="Merge to&#xa;main" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.codecommit;labelBackgroundColor=none;sketch=0;fontStyle=1;fontSize=10;fillColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="80" y="730" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- GitHub Actions CD Web -->
+        <mxCell id="gha_web" value="GitHub Actions&#xa;(Web CD)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#24292E;fontColor=#FFFFFF;fontSize=11;fontStyle=1;strokeColor=#24292E;" vertex="1" parent="1">
+          <mxGeometry x="220" y="725" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- flox activate web -->
+        <mxCell id="flox_web" value="flox activate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7B1FA2;fontColor=#FFFFFF;fontSize=11;fontStyle=1;strokeColor=#7B1FA2;" vertex="1" parent="1">
+          <mxGeometry x="420" y="730" width="110" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- pnpm build -->
+        <mxCell id="pnpm_build" value="pnpm install&#xa;pnpm build&#xa;(SvelteKit)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF3E00;fontColor=#FFFFFF;fontSize=11;fontStyle=1;strokeColor=#FF3E00;" vertex="1" parent="1">
+          <mxGeometry x="600" y="725" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- S3 Sync -->
+        <mxCell id="s3_sync" value="aws s3 sync&#xa;(Static Files)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;labelBackgroundColor=none;sketch=0;fontStyle=1;fontSize=10;fillColor=#3F8624;strokeColor=#3F8624;" vertex="1" parent="1">
+          <mxGeometry x="810" y="730" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- CloudFront Invalidation -->
+        <mxCell id="cf_invalidate" value="CloudFront&#xa;Invalidation&#xa;(/*)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudfront;labelBackgroundColor=none;sketch=0;fontStyle=1;fontSize=10;fillColor=#ED7100;strokeColor=#ED7100;" vertex="1" parent="1">
+          <mxGeometry x="960" y="730" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Live -->
+        <mxCell id="live" value="Live!&#xa;(Updated Frontend)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4CAF50;fontColor=#FFFFFF;fontSize=12;fontStyle=1;strokeColor=#4CAF50;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="730" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- CD Web Arrows -->
+        <mxCell id="web_e1" style="rounded=1;strokeWidth=2;strokeColor=#333;" edge="1" source="merge_web" target="gha_web" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="web_e1_l" value="trigger" style="edgeLabel;html=1;fontSize=9;" vertex="1" connectable="0" parent="web_e1">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="web_e2" style="rounded=1;strokeWidth=2;strokeColor=#333;" edge="1" source="gha_web" target="flox_web" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="web_e3" style="rounded=1;strokeWidth=2;strokeColor=#FF3E00;" edge="1" source="flox_web" target="pnpm_build" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="web_e4" style="rounded=1;strokeWidth=2;strokeColor=#3F8624;" edge="1" source="pnpm_build" target="s3_sync" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="web_e4_l" value="upload" style="edgeLabel;html=1;fontSize=9;" vertex="1" connectable="0" parent="web_e4">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="web_e5" style="rounded=1;strokeWidth=2;strokeColor=#ED7100;" edge="1" source="s3_sync" target="cf_invalidate" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="web_e5_l" value="invalidate cache" style="edgeLabel;html=1;fontSize=9;" vertex="1" connectable="0" parent="web_e5">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="web_e6" style="rounded=1;strokeWidth=2;strokeColor=#4CAF50;" edge="1" source="cf_invalidate" target="live" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== Legend ==================== -->
+        <mxCell id="legend" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#666666;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="870" width="700" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="leg_t" value="Legend:" style="text;html=1;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="878" width="60" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l1" value="" style="rounded=1;fillColor=#FFF8E1;strokeColor=#FFA000;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="120" y="880" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="l1t" value="CI (PR)" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="140" y="878" width="50" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l2" value="" style="rounded=1;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="200" y="880" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="l2t" value="CD API (Backend)" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="220" y="878" width="100" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l3" value="" style="rounded=1;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="330" y="880" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="l3t" value="CD Web (Frontend)" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="350" y="878" width="110" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l4" value="" style="rounded=1;fillColor=#FCE4EC;strokeColor=#C62828;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="470" y="880" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="l4t" value="GitOps Loop (ArgoCD)" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="490" y="878" width="130" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="l5" value="" style="rounded=1;fillColor=#7B1FA2;strokeColor=#7B1FA2;" vertex="1" parent="1">
+          <mxGeometry x="630" y="880" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="l5t" value="flox" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="650" y="878" width="40" height="18" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
