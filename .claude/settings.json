@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flox activate *)",
+      "Bash(go *)",
+      "Bash(pnpm *)",
+      "Bash(terraform *)",
+      "Bash(kubectl *)",
+      "Bash(aws *)",
+      "Bash(docker *)",
+      "Bash(argocd *)",
+      "Bash(git *)",
+      "Bash(ls *)",
+      "Bash(mkdir *)",
+      "Bash(tail *)"
+    ]
+  }
+}

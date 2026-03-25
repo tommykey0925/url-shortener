@@ -4,8 +4,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/tommykey0925/url-shortener-api/handler"
+	"github.com/tommykey0925/url-shortener-api/middleware"
 	"github.com/tommykey0925/url-shortener-api/store"
 )
 
@@ -26,8 +28,11 @@ func main() {
 	mux.HandleFunc("GET /r/{code}", h.Redirect)
 	mux.HandleFunc("GET /health", h.Health)
 
+	// Rate limit: 10 requests per IP per minute
+	rl := middleware.NewRateLimiter(10, time.Minute)
+
 	log.Printf("Starting server on :%s", port)
-	if err := http.ListenAndServe(":"+port, mux); err != nil {
+	if err := http.ListenAndServe(":"+port, rl.Wrap(mux)); err != nil {
 		log.Fatal(err)
 	}
 }
