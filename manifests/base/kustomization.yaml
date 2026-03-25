@@ -10,5 +10,5 @@ resources:
 
 images:
   - name: url-shortener-api
-    newName: ACCOUNT_ID.dkr.ecr.ap-northeast-1.amazonaws.com/url-shortener-api
+    newName: 831963379503.dkr.ecr.ap-northeast-1.amazonaws.com/url-shortener-api
     newTag: latest
