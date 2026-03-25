@@ -1,0 +1,60 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "api/**"
+
+env:
+  AWS_REGION: ap-northeast-1
+  ECR_REPOSITORY: url-shortener-api
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr
+
+      - name: Build and push image
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cd api
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - uses: flox/install-flox-action@main
+
+      - name: Update manifest image tag
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+        run: |
+          flox activate -- bash -c "
+            cd manifests/base
+            kustomize edit set image url-shortener-api=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          "
+
+      - name: Commit and push manifest update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifests/base/kustomization.yaml
+          git commit -m "chore: update image tag to ${GITHUB_SHA::7}"
+          git push
