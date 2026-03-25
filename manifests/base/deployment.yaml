@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: url-shortener-api
+  namespace: url-shortener
+  labels:
+    app: url-shortener-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: url-shortener-api
+  template:
+    metadata:
+      labels:
+        app: url-shortener-api
+    spec:
+      serviceAccountName: url-shortener-api
+      containers:
+        - name: api
+          image: url-shortener-api
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: DYNAMODB_TABLE
+              value: url-shortener
+            - name: AWS_REGION
+              value: ap-northeast-1
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi

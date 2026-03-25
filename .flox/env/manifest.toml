@@ -14,6 +14,7 @@ kubectl.pkg-path = "kubectl"
 argocd.pkg-path = "argocd"
 awscli2.pkg-path = "awscli2"
 terraform.pkg-path = "terraform"
+kustomize.pkg-path = "kustomize"
 # gum.pkg-path = "gum"
 # gum.version = "^0.14.5"
 
