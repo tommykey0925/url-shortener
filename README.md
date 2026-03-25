@@ -1,109 +1,101 @@
 # URL Shortener
 
-長い URL を短縮し、クリック数を計測する Web アプリケーション。
-AWS のインフラ構成・運用スキルを示すポートフォリオプロジェクト。
+URLを短くしてクリック数も見れるやつ。AWS使って色々やってみたくて作った。
 
-## Architecture
+## 構成図
 
 ![Architecture](docs/architecture.png)
 
-> [draw.io で開く](docs/architecture.drawio)
-
-## Network
+<details>
+<summary>ネットワーク構成</summary>
 
 ![Network](docs/network.png)
+</details>
 
-> [draw.io で開く](docs/network.drawio)
-
-## CI/CD
+<details>
+<summary>CI/CDパイプライン</summary>
 
 ![CI/CD](docs/cicd.png)
+</details>
 
-> [draw.io で開く](docs/cicd.drawio)
+> draw.io のファイルは [docs/](docs/) にあります
 
-## Tech Stack
+## 使った技術
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | SvelteKit 2 + Svelte 5 + Tailwind CSS v4 |
-| Backend | Go (net/http + AWS SDK v2) |
-| Database | DynamoDB |
-| Container | Docker → ECR → EKS (Kubernetes) |
+| | |
+|---|---|
+| フロント | SvelteKit 2, Svelte 5, Tailwind CSS v4 |
+| バックエンド | Go (標準ライブラリ + AWS SDK v2) |
+| DB | DynamoDB |
+| コンテナ | Docker, ECR, EKS |
 | IaC | Terraform |
-| GitOps | ArgoCD |
-| CI/CD | GitHub Actions + flox |
-| CDN | CloudFront (S3 + ALB dual origin) |
+| CD | ArgoCD (GitOps) |
+| CI | GitHub Actions, flox |
+| 配信 | CloudFront (S3とALBをまとめて同一ドメインで出してる) |
 
-## Project Structure
+## ディレクトリ構成
 
 ```
 url-shortener/
-├── api/          # Go API
-├── web/          # SvelteKit frontend
+├── api/          # GoのAPI
+├── web/          # SvelteKitのフロント
 ├── infra/        # Terraform
-├── manifests/    # K8s manifests + ArgoCD
-├── docs/         # Architecture diagrams (draw.io)
-└── .github/      # CI/CD workflows
+├── manifests/    # K8sマニフェスト + ArgoCD
+├── docs/         # 構成図 (draw.io)
+└── .github/      # GitHub Actionsのワークフロー
 ```
 
-## API Endpoints
+## APIの仕様
 
-| Method | Path | Description |
-|--------|------|------------|
-| POST | `/api/shorten` | Shorten a URL |
-| GET | `/api/urls` | List all URLs |
-| GET | `/api/urls/{code}` | Get URL details |
-| DELETE | `/api/urls/{code}` | Delete a URL |
-| GET | `/r/{code}` | Redirect to original URL |
-| GET | `/health` | Health check |
+| Method | Path | 何するか |
+|--------|------|---------|
+| POST | `/api/shorten` | URLを短縮 |
+| GET | `/api/urls` | 一覧取得 |
+| GET | `/api/urls/{code}` | 1件取得 |
+| DELETE | `/api/urls/{code}` | 削除 |
+| GET | `/r/{code}` | 元のURLにリダイレクト |
+| GET | `/health` | ヘルスチェック |
 
-## Getting Started
+## ローカルで動かす
 
-### Prerequisites
+開発ツールは全部floxで管理してるので、まずfloxを入れる。
 
 ```bash
-# Install flox (manages all dev tools)
 nix profile install --accept-flake-config github:flox/flox
 ```
 
-### Local Development
+あとはactivateすればgo, terraform, kubectl, pnpm等が全部使える。
 
 ```bash
-flox activate                    # go, terraform, kubectl, pnpm, etc.
-cd api && go run . &             # Start API on :8080
-cd web && pnpm install && pnpm dev  # Start frontend on :5173
+flox activate
+cd api && go run . &                # APIが :8080 で起動
+cd web && pnpm install && pnpm dev  # フロントが :5173 で起動
 ```
 
-Vite dev server proxies `/api/*` and `/r/*` to the Go API.
+Viteのプロキシ設定で `/api/*` と `/r/*` がGoのAPIに流れるようにしてある。
 
-### Deploy to AWS
+## AWSにデプロイ
 
 ```bash
-cd infra && terraform apply      # Create EKS, DynamoDB, ECR, S3, CloudFront
-# See CLAUDE.md for full deployment steps
+cd infra && terraform apply   # EKS, DynamoDB, ECR, S3, CloudFront 等を作成
 ```
 
-### Tear Down
+全手順は [CLAUDE.md](CLAUDE.md) に書いてある。
+
+使い終わったら忘れずに壊す。
 
 ```bash
-cd infra && terraform destroy    # Remove all AWS resources
+cd infra && terraform destroy
 ```
 
-## Cost
+## コストについて
 
-| Service | Monthly Cost |
-|---------|-------------|
-| EKS Control Plane | $73 |
-| EC2 Nodes (t3.medium × 2) | ~$60 |
-| ALB | ~$20 |
-| Others (DynamoDB, S3, CloudFront) | ~$5 |
-| **Total** | **~$158** |
+EKSはコントロールプレーンだけで月$73かかるので、常時稼働だと月$150くらいになる。
+普段は `terraform destroy` しておいて、デモのときだけ `apply` する運用にしてる。
 
-> Cost strategy: `terraform destroy` when not in use, `terraform apply` for demos only.
+## セキュリティ面
 
-## Security
-
-- Rate limiting: 10 requests/min per IP
-- DynamoDB: Provisioned capacity (read: 2/s, write: 1/s)
-- S3: Private bucket, CloudFront OAC access only
-- IAM: IRSA for pod-level permissions (least privilege)
+- Go側でIPあたり10リクエスト/分のレート制限をかけてる
+- DynamoDBはプロビジョニングモードにして、読み2/秒・書き1/秒に抑えてる
+- S3はプライベートバケットで、CloudFrontのOAC経由でしかアクセスできない
+- PodからDynamoDBへのアクセスはIRSAで最小権限にしてる
