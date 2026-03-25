@@ -24,6 +24,11 @@ infra/.terraform.lock.hcl
 # OS
 .DS_Store
 
+# Web (SvelteKit)
+web/node_modules/
+web/.svelte-kit/
+web/build/
+
 # Flox
 .flox/run/
 .flox/cache/

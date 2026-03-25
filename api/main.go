@@ -23,7 +23,7 @@ func main() {
 	mux.HandleFunc("GET /api/urls", h.List)
 	mux.HandleFunc("GET /api/urls/{code}", h.Get)
 	mux.HandleFunc("DELETE /api/urls/{code}", h.Delete)
-	mux.HandleFunc("GET /{code}", h.Redirect)
+	mux.HandleFunc("GET /r/{code}", h.Redirect)
 	mux.HandleFunc("GET /health", h.Health)
 
 	log.Printf("Starting server on :%s", port)
