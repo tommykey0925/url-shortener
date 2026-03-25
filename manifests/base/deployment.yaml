@@ -28,6 +28,8 @@ spec:
               value: url-shortener
             - name: AWS_REGION
               value: ap-northeast-1
+            - name: BASE_URL
+              value: https://d2uds7gh94bb1c.cloudfront.net
           livenessProbe:
             httpGet:
               path: /health
