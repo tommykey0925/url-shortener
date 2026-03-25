@@ -15,3 +15,9 @@ variable "cluster_version" {
   type        = string
   default     = "1.32"
 }
+
+variable "alb_dns_name" {
+  description = "DNS name of the ALB created by the ingress controller"
+  type        = string
+  default     = "placeholder.ap-northeast-1.elb.amazonaws.com"
+}

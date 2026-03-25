@@ -48,7 +48,7 @@ func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusCreated, model.ShortenResponse{
 		Code:     u.Code,
-		ShortURL: fmt.Sprintf("%s/%s", baseURL, u.Code),
+		ShortURL: fmt.Sprintf("%s/r/%s", baseURL, u.Code),
 	})
 }
 
