@@ -3,10 +3,10 @@ package model
 import "time"
 
 type URL struct {
-	Code      string    `json:"code"`
-	Original  string    `json:"original_url"`
-	CreatedAt time.Time `json:"created_at"`
-	Clicks    int64     `json:"clicks"`
+	Code      string    `json:"code" dynamodbav:"code"`
+	Original  string    `json:"original_url" dynamodbav:"original_url"`
+	CreatedAt time.Time `json:"created_at" dynamodbav:"created_at"`
+	Clicks    int64     `json:"clicks" dynamodbav:"clicks"`
 }
 
 type ShortenRequest struct {

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -37,6 +38,7 @@ func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 	code := generateCode()
 	u, err := h.store.Put(r.Context(), code, req.URL)
 	if err != nil {
+		log.Printf("ERROR: store.Put failed: %v", err)
 		writeJSON(w, http.StatusInternalServerError, model.ErrorResponse{Error: "failed to create short url"})
 		return
 	}
