@@ -103,7 +103,7 @@ func (h *Handler) Redirect(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "version": "1.0.0"})
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
