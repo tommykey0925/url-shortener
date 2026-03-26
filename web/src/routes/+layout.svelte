@@ -23,6 +23,6 @@
 		{@render children()}
 	</main>
 	<footer class="border-t border-zinc-900 px-4 py-4 text-center text-xs text-zinc-600">
-		Go + SvelteKit + EKS + ArgoCD
+		Go + SvelteKit + EKS + ArgoCD + Terraform
 	</footer>
 </div>
