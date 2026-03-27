@@ -19,5 +19,5 @@ variable "cluster_version" {
 variable "alb_dns_name" {
   description = "DNS name of the ALB created by the ingress controller"
   type        = string
-  default     = "k8s-urlshort-urlshort-2449b11c54-804778067.ap-northeast-1.elb.amazonaws.com"
+  default     = "k8s-urlshort-urlshort-2449b11c54-315339625.ap-northeast-1.elb.amazonaws.com"
 }
