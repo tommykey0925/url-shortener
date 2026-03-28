@@ -16,8 +16,8 @@ variable "cluster_version" {
   default     = "1.32"
 }
 
-variable "alb_dns_name" {
-  description = "DNS name of the ALB created by the ingress controller"
-  type        = string
-  default     = "k8s-urlshort-urlshort-2449b11c54-315339625.ap-northeast-1.elb.amazonaws.com"
+data "aws_lb" "api" {
+  tags = {
+    "ingress.k8s.aws/stack" = "url-shortener/url-shortener-api"
+  }
 }

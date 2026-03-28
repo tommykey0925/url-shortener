@@ -40,7 +40,7 @@ resource "aws_cloudfront_distribution" "frontend" {
 
   # ALB origin (API)
   origin {
-    domain_name = var.alb_dns_name
+    domain_name = data.aws_lb.api.dns_name
     origin_id   = "alb-api"
 
     custom_origin_config {
