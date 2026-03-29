@@ -12,15 +12,17 @@ import (
 	"os"
 
 	"github.com/tommykey0925/url-shortener-api/model"
+	"github.com/tommykey0925/url-shortener-api/safety"
 	"github.com/tommykey0925/url-shortener-api/store"
 )
 
 type Handler struct {
-	store *store.Store
+	store   *store.Store
+	checker *safety.Checker
 }
 
-func New(s *store.Store) *Handler {
-	return &Handler{store: s}
+func New(s *store.Store, c *safety.Checker) *Handler {
+	return &Handler{store: s, checker: c}
 }
 
 func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
@@ -35,8 +37,15 @@ func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Safety check
+	result := h.checker.Check(req.URL)
+	if !result.Safe {
+		writeJSON(w, http.StatusBadRequest, model.ErrorResponse{Error: "unsafe URL: " + result.Detail})
+		return
+	}
+
 	code := generateCode()
-	u, err := h.store.Put(r.Context(), code, req.URL)
+	u, err := h.store.Put(r.Context(), code, req.URL, result.Status)
 	if err != nil {
 		log.Printf("ERROR: store.Put failed: %v", err)
 		writeJSON(w, http.StatusInternalServerError, model.ErrorResponse{Error: "failed to create short url"})
@@ -49,8 +58,9 @@ func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusCreated, model.ShortenResponse{
-		Code:     u.Code,
-		ShortURL: fmt.Sprintf("%s/r/%s", baseURL, u.Code),
+		Code:       u.Code,
+		ShortURL:   fmt.Sprintf("%s/r/%s", baseURL, u.Code),
+		SafeStatus: u.SafeStatus,
 	})
 }
 
@@ -95,6 +105,18 @@ func (h *Handler) Redirect(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	if u.SafeStatus == "unsafe" {
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, `<html><body style="font-family:sans-serif;max-width:600px;margin:40px auto;padding:20px">
+			<h1>⚠️ Warning</h1>
+			<p>This URL has been flagged as potentially unsafe.</p>
+			<p>Destination: <code>%s</code></p>
+			<p><a href="%s">Continue anyway</a></p>
+		</body></html>`, u.Original, u.Original)
 		return
 	}
 

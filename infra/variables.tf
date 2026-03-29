@@ -16,3 +16,17 @@ variable "cluster_version" {
   default     = "1.32"
 }
 
+variable "google_safe_browsing_api_key" {
+  description = "Google Safe Browsing API key"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "groq_api_key" {
+  description = "Groq API key for AI safety prediction"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+

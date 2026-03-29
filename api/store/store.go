@@ -39,12 +39,13 @@ func New() *Store {
 	}
 }
 
-func (s *Store) Put(ctx context.Context, code, originalURL string) (*model.URL, error) {
+func (s *Store) Put(ctx context.Context, code, originalURL, safeStatus string) (*model.URL, error) {
 	u := &model.URL{
-		Code:      code,
-		Original:  originalURL,
-		CreatedAt: time.Now().UTC(),
-		Clicks:    0,
+		Code:       code,
+		Original:   originalURL,
+		CreatedAt:  time.Now().UTC(),
+		Clicks:     0,
+		SafeStatus: safeStatus,
 	}
 
 	item, err := attributevalue.MarshalMap(u)
