@@ -30,7 +30,7 @@ func setupMux() http.Handler {
 	mux.HandleFunc("GET /r/{code}", h.Redirect)
 	mux.HandleFunc("GET /health", h.Health)
 
-	rl := middleware.NewRateLimiter(10, time.Minute)
+	rl := middleware.NewRateLimiter(30, time.Minute)
 	return rl.Wrap(mux)
 }
 
