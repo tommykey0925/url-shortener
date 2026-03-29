@@ -1,5 +1,12 @@
 <script lang="ts">
 	import { shortenUrl, listUrls, deleteUrl, summarizeUrl, type URL as ShortURL, type ShortenResponse } from '$lib/api';
+	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
+	import * as Card from '$lib/components/ui/card';
+	import * as Table from '$lib/components/ui/table';
+	import * as Dialog from '$lib/components/ui/dialog';
+	import { Badge } from '$lib/components/ui/badge';
+	import * as Alert from '$lib/components/ui/alert';
 
 	let urls = $state<ShortURL[]>([]);
 	let newUrl = $state('');
@@ -75,54 +82,49 @@
 
 <!-- Hero -->
 <div class="mb-8 text-center sm:text-left">
-	<p class="text-zinc-400">長いURLを短くして、クリック数も計測できます</p>
+	<p class="text-muted-foreground">長いURLを短くして、クリック数も計測できます</p>
 </div>
 
 <!-- Shorten Form -->
 <section class="mb-8">
 	<form onsubmit={handleSubmit} class="flex flex-col gap-3 sm:flex-row">
-		<input
+		<Input
 			type="url"
 			bind:value={newUrl}
 			placeholder="https://example.com/very/long/url"
 			required
-			class="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-zinc-50 placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:flex-1"
+			class="sm:flex-1"
 		/>
-		<button
-			type="submit"
-			disabled={loading}
-			class="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white transition hover:bg-emerald-500 disabled:opacity-50 sm:w-auto"
-		>
+		<Button type="submit" disabled={loading}>
 			{loading ? '作成中...' : '短縮する'}
-		</button>
+		</Button>
 	</form>
 
 	{#if error}
-		<div class="mt-3 rounded-lg border border-red-800 bg-red-950 px-4 py-3 text-sm text-red-400">
-			{error}
-		</div>
+		<Alert.Root variant="destructive" class="mt-3">
+			<Alert.Description>{error}</Alert.Description>
+		</Alert.Root>
 	{/if}
 
 	{#if result}
-		<div class="mt-4 rounded-lg border border-emerald-800 bg-emerald-950 p-4">
-			<p class="mb-2 text-xs text-emerald-400">短縮URLが作成されました</p>
-			<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-				<a
-					href={result.short_url}
-					target="_blank"
-					rel="noopener"
-					class="break-all font-mono text-sm text-emerald-300 underline decoration-emerald-700 hover:decoration-emerald-400 sm:flex-1"
-				>
-					{result.short_url}
-				</a>
-				<button
-					onclick={() => copyToClipboard(result!.short_url)}
-					class="w-full rounded-md border border-emerald-700 px-4 py-2 text-sm text-emerald-300 transition hover:bg-emerald-900 sm:w-auto"
-				>
-					{copied ? 'コピーしました!' : 'コピー'}
-				</button>
-			</div>
-		</div>
+		<Card.Root class="mt-4 border-primary/30 bg-primary/5">
+			<Card.Content class="pt-4">
+				<p class="mb-2 text-xs text-primary">短縮URLが作成されました</p>
+				<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+					<a
+						href={result.short_url}
+						target="_blank"
+						rel="noopener"
+						class="break-all font-mono text-sm text-primary underline decoration-primary/40 hover:decoration-primary sm:flex-1"
+					>
+						{result.short_url}
+					</a>
+					<Button variant="outline" size="sm" onclick={() => copyToClipboard(result!.short_url)}>
+						{copied ? 'コピーしました!' : 'コピー'}
+					</Button>
+				</div>
+			</Card.Content>
+		</Card.Root>
 	{/if}
 </section>
 
@@ -131,132 +133,134 @@
 	<h2 class="mb-4 text-lg font-semibold">作成したURL</h2>
 
 	{#if urls.length === 0}
-		<div class="rounded-lg border border-dashed border-zinc-700 p-8 text-center">
-			<p class="text-zinc-500">まだURLがありません。上のフォームから作成してみましょう</p>
-		</div>
+		<Card.Root class="border-dashed">
+			<Card.Content class="py-8 text-center">
+				<p class="text-muted-foreground">まだURLがありません。上のフォームから作成してみましょう</p>
+			</Card.Content>
+		</Card.Root>
 	{:else}
 		<!-- Desktop: Table -->
-		<div class="hidden overflow-hidden rounded-lg border border-zinc-800 sm:block">
-			<table class="w-full text-sm">
-				<thead class="border-b border-zinc-800 bg-zinc-900/50">
-					<tr>
-						<th class="px-4 py-3 text-left font-medium text-zinc-400">コード</th>
-						<th class="px-4 py-3 text-left font-medium text-zinc-400">元のURL</th>
-						<th class="px-4 py-3 text-right font-medium text-zinc-400">クリック数</th>
-						<th class="px-4 py-3 text-right font-medium text-zinc-400">作成日</th>
-						<th class="px-4 py-3"></th>
-					</tr>
-				</thead>
-				<tbody>
+		<div class="hidden sm:block">
+			<Table.Root>
+				<Table.Header>
+					<Table.Row>
+						<Table.Head>コード</Table.Head>
+						<Table.Head>元のURL</Table.Head>
+						<Table.Head class="text-right">クリック数</Table.Head>
+						<Table.Head class="text-right">作成日</Table.Head>
+						<Table.Head></Table.Head>
+					</Table.Row>
+				</Table.Header>
+				<Table.Body>
 					{#each urls as url (url.code)}
-						<tr class="border-b border-zinc-800 transition last:border-0 hover:bg-zinc-900/30">
-							<td class="px-4 py-3">
+						<Table.Row>
+							<Table.Cell>
 								<a
 									href="/r/{url.code}"
 									target="_blank"
 									rel="noopener"
-									class="font-mono text-emerald-400 hover:underline"
+									class="font-mono text-primary hover:underline"
 								>
 									{url.code}
 								</a>
-							</td>
-							<td class="max-w-xs truncate px-4 py-3 text-zinc-300" title={url.original_url}>
+							</Table.Cell>
+							<Table.Cell class="max-w-xs truncate" title={url.original_url}>
 								{url.original_url}
-							</td>
-							<td class="px-4 py-3 text-right">
-								<span class="inline-flex items-center rounded-full bg-zinc-800 px-2.5 py-0.5 text-xs font-medium text-zinc-300">
-									{url.clicks}
-								</span>
-							</td>
-							<td class="px-4 py-3 text-right text-zinc-500">
+							</Table.Cell>
+							<Table.Cell class="text-right">
+								<Badge variant="secondary">{url.clicks}</Badge>
+							</Table.Cell>
+							<Table.Cell class="text-right text-muted-foreground">
 								{new Date(url.created_at).toLocaleDateString('ja-JP')}
-							</td>
-							<td class="px-4 py-3 text-right">
-								<div class="flex justify-end gap-2">
-									<button
-										onclick={() => handleSummarize(url.code)}
+							</Table.Cell>
+							<Table.Cell class="text-right">
+								<div class="flex justify-end gap-1">
+									<Button
+										variant="ghost"
+										size="sm"
 										disabled={summarizing === url.code}
-										class="rounded px-2 py-1 text-xs text-zinc-500 transition hover:bg-emerald-950 hover:text-emerald-400 disabled:opacity-50"
+										onclick={() => handleSummarize(url.code)}
 									>
 										{summarizing === url.code ? '分析中...' : 'AI要約'}
-									</button>
-									<button
+									</Button>
+									<Button
+										variant="ghost"
+										size="sm"
+										class="text-destructive hover:text-destructive"
 										onclick={() => handleDelete(url.code)}
-										class="rounded px-2 py-1 text-xs text-zinc-500 transition hover:bg-red-950 hover:text-red-400"
 									>
 										削除
-									</button>
+									</Button>
 								</div>
-							</td>
-						</tr>
+							</Table.Cell>
+						</Table.Row>
 					{/each}
-				</tbody>
-			</table>
+				</Table.Body>
+			</Table.Root>
 		</div>
 
 		<!-- Mobile: Card List -->
 		<div class="flex flex-col gap-3 sm:hidden">
 			{#each urls as url (url.code)}
-				<div class="rounded-lg border border-zinc-800 bg-zinc-900/30 p-4">
-					<div class="mb-2 flex items-center justify-between">
-						<a
-							href="/r/{url.code}"
-							target="_blank"
-							rel="noopener"
-							class="font-mono text-emerald-400 hover:underline"
-						>
-							{url.code}
-						</a>
-						<span class="inline-flex items-center rounded-full bg-zinc-800 px-2.5 py-0.5 text-xs font-medium text-zinc-300">
-							{url.clicks} clicks
-						</span>
-					</div>
-					<p class="mb-3 truncate text-sm text-zinc-400" title={url.original_url}>
-						{url.original_url}
-					</p>
-					<div class="flex items-center justify-between">
-						<span class="text-xs text-zinc-600">
-							{new Date(url.created_at).toLocaleDateString('ja-JP')}
-						</span>
-						<div class="flex gap-2">
-							<button
-								onclick={() => handleSummarize(url.code)}
-								disabled={summarizing === url.code}
-								class="rounded px-3 py-1 text-xs text-zinc-500 transition hover:bg-emerald-950 hover:text-emerald-400 disabled:opacity-50"
+				<Card.Root>
+					<Card.Content class="pt-4">
+						<div class="mb-2 flex items-center justify-between">
+							<a
+								href="/r/{url.code}"
+								target="_blank"
+								rel="noopener"
+								class="font-mono text-primary hover:underline"
 							>
-								{summarizing === url.code ? '分析中...' : 'AI要約'}
-							</button>
-							<button
-								onclick={() => handleDelete(url.code)}
-								class="rounded px-3 py-1 text-xs text-zinc-500 transition hover:bg-red-950 hover:text-red-400"
-							>
-								削除
-							</button>
+								{url.code}
+							</a>
+							<Badge variant="secondary">{url.clicks} clicks</Badge>
 						</div>
-					</div>
-				</div>
+						<p class="mb-3 truncate text-sm text-muted-foreground" title={url.original_url}>
+							{url.original_url}
+						</p>
+						<div class="flex items-center justify-between">
+							<span class="text-xs text-muted-foreground">
+								{new Date(url.created_at).toLocaleDateString('ja-JP')}
+							</span>
+							<div class="flex gap-1">
+								<Button
+									variant="ghost"
+									size="sm"
+									disabled={summarizing === url.code}
+									onclick={() => handleSummarize(url.code)}
+								>
+									{summarizing === url.code ? '分析中...' : 'AI要約'}
+								</Button>
+								<Button
+									variant="ghost"
+									size="sm"
+									class="text-destructive hover:text-destructive"
+									onclick={() => handleDelete(url.code)}
+								>
+									削除
+								</Button>
+							</div>
+						</div>
+					</Card.Content>
+				</Card.Root>
 			{/each}
 		</div>
 	{/if}
 </section>
 
-{#if showSummary}
-	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onclick={() => (showSummary = false)}>
-		<div class="mx-4 max-w-lg rounded-lg border border-zinc-700 bg-zinc-900 p-6 shadow-xl" onclick={(e) => e.stopPropagation()}>
-			<h3 class="mb-3 text-lg font-semibold text-zinc-50">
-				<span class="text-emerald-400">AI</span> URL要約
-			</h3>
-			<div class="whitespace-pre-wrap text-sm leading-relaxed text-zinc-300">
-				{summaryText}
-			</div>
-			<div class="mt-4 flex justify-end">
-				<button
-					onclick={() => (showSummary = false)}
-					class="rounded-lg bg-zinc-700 px-4 py-2 text-sm text-zinc-200 transition hover:bg-zinc-600"
-				>
-					閉じる
-				</button>
-			</div>
+<!-- AI Summary Dialog -->
+<Dialog.Root bind:open={showSummary}>
+	<Dialog.Content>
+		<Dialog.Header>
+			<Dialog.Title>
+				<span class="text-primary">AI</span> URL要約
+			</Dialog.Title>
+		</Dialog.Header>
+		<div class="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+			{summaryText}
 		</div>
-	</div>
-{/if}
+		<Dialog.Footer>
+			<Button variant="secondary" onclick={() => (showSummary = false)}>閉じる</Button>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>
