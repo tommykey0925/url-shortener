@@ -124,6 +124,23 @@ func (h *Handler) Redirect(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, u.Original, http.StatusMovedPermanently)
 }
 
+func (h *Handler) Summarize(w http.ResponseWriter, r *http.Request) {
+	code := r.PathValue("code")
+	u, err := h.store.Get(r.Context(), code)
+	if err != nil {
+		writeJSON(w, http.StatusNotFound, model.ErrorResponse{Error: "not found"})
+		return
+	}
+
+	summary, err := h.checker.Summarize(u.Original)
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, model.ErrorResponse{Error: "AI summarization failed"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]string{"summary": summary})
+}
+
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "version": "1.0.0"})
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { shortenUrl, listUrls, deleteUrl, type URL as ShortURL, type ShortenResponse } from '$lib/api';
+	import { shortenUrl, listUrls, deleteUrl, summarizeUrl, type URL as ShortURL, type ShortenResponse } from '$lib/api';
 
 	let urls = $state<ShortURL[]>([]);
 	let newUrl = $state('');
@@ -7,6 +7,9 @@
 	let error = $state('');
 	let loading = $state(false);
 	let copied = $state(false);
+	let summarizing = $state('');
+	let summaryText = $state('');
+	let showSummary = $state(false);
 
 	async function loadUrls() {
 		try {
@@ -49,6 +52,20 @@
 		await navigator.clipboard.writeText(text);
 		copied = true;
 		setTimeout(() => (copied = false), 2000);
+	}
+
+	async function handleSummarize(code: string) {
+		summarizing = code;
+		summaryText = '';
+		try {
+			summaryText = await summarizeUrl(code);
+			showSummary = true;
+		} catch {
+			summaryText = '要約の取得に失敗しました';
+			showSummary = true;
+		} finally {
+			summarizing = '';
+		}
 	}
 
 	$effect(() => {
@@ -155,12 +172,21 @@
 								{new Date(url.created_at).toLocaleDateString('ja-JP')}
 							</td>
 							<td class="px-4 py-3 text-right">
-								<button
-									onclick={() => handleDelete(url.code)}
-									class="rounded px-2 py-1 text-xs text-zinc-500 transition hover:bg-red-950 hover:text-red-400"
-								>
-									削除
-								</button>
+								<div class="flex justify-end gap-2">
+									<button
+										onclick={() => handleSummarize(url.code)}
+										disabled={summarizing === url.code}
+										class="rounded px-2 py-1 text-xs text-zinc-500 transition hover:bg-emerald-950 hover:text-emerald-400 disabled:opacity-50"
+									>
+										{summarizing === url.code ? '分析中...' : 'AI要約'}
+									</button>
+									<button
+										onclick={() => handleDelete(url.code)}
+										class="rounded px-2 py-1 text-xs text-zinc-500 transition hover:bg-red-950 hover:text-red-400"
+									>
+										削除
+									</button>
+								</div>
 							</td>
 						</tr>
 					{/each}
@@ -192,15 +218,45 @@
 						<span class="text-xs text-zinc-600">
 							{new Date(url.created_at).toLocaleDateString('ja-JP')}
 						</span>
-						<button
-							onclick={() => handleDelete(url.code)}
-							class="rounded px-3 py-1 text-xs text-zinc-500 transition hover:bg-red-950 hover:text-red-400"
-						>
-							削除
-						</button>
+						<div class="flex gap-2">
+							<button
+								onclick={() => handleSummarize(url.code)}
+								disabled={summarizing === url.code}
+								class="rounded px-3 py-1 text-xs text-zinc-500 transition hover:bg-emerald-950 hover:text-emerald-400 disabled:opacity-50"
+							>
+								{summarizing === url.code ? '分析中...' : 'AI要約'}
+							</button>
+							<button
+								onclick={() => handleDelete(url.code)}
+								class="rounded px-3 py-1 text-xs text-zinc-500 transition hover:bg-red-950 hover:text-red-400"
+							>
+								削除
+							</button>
+						</div>
 					</div>
 				</div>
 			{/each}
 		</div>
 	{/if}
 </section>
+
+{#if showSummary}
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onclick={() => (showSummary = false)}>
+		<div class="mx-4 max-w-lg rounded-lg border border-zinc-700 bg-zinc-900 p-6 shadow-xl" onclick={(e) => e.stopPropagation()}>
+			<h3 class="mb-3 text-lg font-semibold text-zinc-50">
+				<span class="text-emerald-400">AI</span> URL要約
+			</h3>
+			<div class="whitespace-pre-wrap text-sm leading-relaxed text-zinc-300">
+				{summaryText}
+			</div>
+			<div class="mt-4 flex justify-end">
+				<button
+					onclick={() => (showSummary = false)}
+					class="rounded-lg bg-zinc-700 px-4 py-2 text-sm text-zinc-200 transition hover:bg-zinc-600"
+				>
+					閉じる
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}

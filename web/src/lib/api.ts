@@ -33,3 +33,10 @@ export async function deleteUrl(code: string): Promise<void> {
 	const res = await fetch(`/api/urls/${code}`, { method: 'DELETE' });
 	if (!res.ok) throw new Error('Failed to delete URL');
 }
+
+export async function summarizeUrl(code: string): Promise<string> {
+	const res = await fetch(`/api/urls/${code}/summarize`, { method: 'POST' });
+	if (!res.ok) throw new Error('Failed to summarize URL');
+	const data = await res.json();
+	return data.summary;
+}

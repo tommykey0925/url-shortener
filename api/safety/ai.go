@@ -3,8 +3,8 @@ package safety
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -16,7 +16,7 @@ type AIClient struct {
 func NewAIClient(apiKey string) *AIClient {
 	return &AIClient{
 		apiKey:     apiKey,
-		httpClient: &http.Client{Timeout: 10 * time.Second},
+		httpClient: &http.Client{Timeout: 15 * time.Second},
 	}
 }
 
@@ -36,17 +36,17 @@ type groqResponse struct {
 	} `json:"choices"`
 }
 
-func (c *AIClient) Predict(targetURL string) (bool, string, error) {
+func (c *AIClient) Summarize(targetURL string) (string, error) {
 	if c.apiKey == "" {
-		return true, "skipped (no API key)", nil
+		return "AI要約は利用できません（APIキー未設定）", nil
 	}
 
-	prompt := `Analyze the following URL for safety. Consider:
-- Is the domain well-known and reputable?
-- Does the URL path contain suspicious patterns (phishing, malware, scam)?
-- Are there signs of URL obfuscation or deception?
+	prompt := `以下のURLの遷移先について、日本語で簡潔に要約してください（3〜5行程度）。
 
-Reply with ONLY one word: "SAFE" or "UNSAFE", followed by a brief reason.
+以下の観点で分析してください：
+- そのサイトが何のサービス・ページか
+- 主なコンテンツは何か
+- フィッシング、マルウェア、詐欺、不審なリダイレクトなどの疑いがある場合は、最初に「⚠️ 警告:」と記載して危険性を説明してください
 
 URL: ` + targetURL
 
@@ -64,20 +64,14 @@ URL: ` + targetURL
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return true, "AI check failed (network error)", nil
+		return "", fmt.Errorf("AI API request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	var result groqResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil || len(result.Choices) == 0 {
-		return true, "AI check failed (parse error)", nil
+		return "", fmt.Errorf("AI API response parse failed")
 	}
 
-	answer := result.Choices[0].Message.Content
-	isUnsafe := strings.HasPrefix(strings.ToUpper(strings.TrimSpace(answer)), "UNSAFE")
-
-	if isUnsafe {
-		return false, "AI prediction: " + answer, nil
-	}
-	return true, "AI prediction: " + answer, nil
+	return result.Choices[0].Message.Content, nil
 }
