@@ -13,9 +13,11 @@ resource "aws_lambda_function" "api" {
 
   environment {
     variables = {
-      DYNAMODB_TABLE = aws_dynamodb_table.urls.name
-      AWS_REGION_APP = var.region
-      BASE_URL       = "https://url.tommykeyapp.com"
+      DYNAMODB_TABLE                = aws_dynamodb_table.urls.name
+      AWS_REGION_APP                = var.region
+      BASE_URL                      = "https://url.tommykeyapp.com"
+      GOOGLE_SAFE_BROWSING_API_KEY  = var.google_safe_browsing_api_key
+      GROQ_API_KEY                  = var.groq_api_key
     }
   }
 
