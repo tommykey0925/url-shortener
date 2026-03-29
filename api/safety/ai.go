@@ -51,7 +51,7 @@ func (c *AIClient) Summarize(targetURL string) (string, error) {
 URL: ` + targetURL
 
 	body := groqRequest{
-		Model: "gemma2-9b-it",
+		Model: "llama-3.1-8b-instant",
 		Messages: []groqMessage{
 			{Role: "user", Content: prompt},
 		},
