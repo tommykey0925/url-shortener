@@ -30,6 +30,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   enabled             = true
   default_root_object = "index.html"
   price_class         = "PriceClass_200"
+  aliases             = ["url.tommykeyapp.com"]
 
   # S3 origin (frontend)
   origin {
@@ -148,7 +149,9 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = aws_acm_certificate_validation.wildcard.certificate_arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 
   tags = {
