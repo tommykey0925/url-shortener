@@ -1,8 +1,13 @@
 <script lang="ts">
 	import favicon from '$lib/assets/favicon.svg';
 	import '../app.css';
+	import { onMount } from 'svelte';
 
 	let { children } = $props();
+
+	onMount(() => {
+		document.documentElement.classList.add('dark');
+	});
 </script>
 
 <svelte:head>
@@ -11,7 +16,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 </svelte:head>
 
-<div class="dark min-h-screen bg-background text-foreground">
+<div class="min-h-screen bg-background text-foreground">
 	<header class="border-b border-border px-4 py-4 sm:px-6">
 		<div class="mx-auto max-w-3xl">
 			<h1 class="text-xl font-bold tracking-tight">
