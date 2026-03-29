@@ -12,12 +12,14 @@ import (
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
 	"github.com/tommykey0925/url-shortener-api/handler"
 	"github.com/tommykey0925/url-shortener-api/middleware"
+	"github.com/tommykey0925/url-shortener-api/safety"
 	"github.com/tommykey0925/url-shortener-api/store"
 )
 
 func setupMux() http.Handler {
 	s := store.New()
-	h := handler.New(s)
+	checker := safety.NewChecker(os.Getenv("GOOGLE_SAFE_BROWSING_API_KEY"), os.Getenv("GROQ_API_KEY"))
+	h := handler.New(s, checker)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /api/shorten", h.Shorten)
