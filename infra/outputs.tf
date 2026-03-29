@@ -6,10 +6,6 @@ output "cluster_endpoint" {
   value = module.eks.cluster_endpoint
 }
 
-output "ecr_repository_url" {
-  value = aws_ecr_repository.api.repository_url
-}
-
 output "dynamodb_table_name" {
   value = aws_dynamodb_table.urls.name
 }
@@ -18,8 +14,12 @@ output "region" {
   value = var.region
 }
 
-output "api_role_arn" {
-  value = module.irsa_dynamodb.iam_role_arn
+output "lambda_function_name" {
+  value = aws_lambda_function.api.function_name
+}
+
+output "api_gateway_url" {
+  value = aws_apigatewayv2_stage.default.invoke_url
 }
 
 output "cloudfront_distribution_id" {

@@ -16,8 +16,3 @@ variable "cluster_version" {
   default     = "1.32"
 }
 
-data "aws_lb" "api" {
-  tags = {
-    "ingress.k8s.aws/stack" = "url-shortener/url-shortener-api"
-  }
-}
