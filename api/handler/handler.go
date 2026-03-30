@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
@@ -16,12 +17,31 @@ import (
 	"github.com/tommykey0925/url-shortener-api/store"
 )
 
+// URLStore is the interface for URL persistence operations.
+type URLStore interface {
+	Put(ctx context.Context, code, originalURL, safeStatus string) (*model.URL, error)
+	Get(ctx context.Context, code string) (*model.URL, error)
+	List(ctx context.Context) ([]model.URL, error)
+	Delete(ctx context.Context, code string) error
+	IncrementClicks(ctx context.Context, code string) error
+}
+
+// SafetyChecker is the interface for URL safety checking.
+type SafetyChecker interface {
+	Check(targetURL string) safety.CheckResult
+	Summarize(targetURL string) (string, error)
+}
+
 type Handler struct {
-	store   *store.Store
-	checker *safety.Checker
+	store   URLStore
+	checker SafetyChecker
 }
 
 func New(s *store.Store, c *safety.Checker) *Handler {
+	return &Handler{store: s, checker: c}
+}
+
+func NewWithDeps(s URLStore, c SafetyChecker) *Handler {
 	return &Handler{store: s, checker: c}
 }
 

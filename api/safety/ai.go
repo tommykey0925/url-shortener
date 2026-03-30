@@ -14,12 +14,14 @@ import (
 type AIClient struct {
 	apiKey     string
 	httpClient *http.Client
+	baseURL    string
 }
 
 func NewAIClient(apiKey string) *AIClient {
 	return &AIClient{
 		apiKey:     apiKey,
 		httpClient: &http.Client{Timeout: 15 * time.Second},
+		baseURL:    "https://api.groq.com/openai/v1/chat/completions",
 	}
 }
 
@@ -82,6 +84,10 @@ func fetchPageContent(targetURL string) string {
 }
 
 func (c *AIClient) Summarize(targetURL string) (string, error) {
+	return c.summarizeWithURL(c.baseURL, targetURL)
+}
+
+func (c *AIClient) summarizeWithURL(apiURL, targetURL string) (string, error) {
 	if c.apiKey == "" {
 		return "AI要約は利用できません（APIキー未設定）", nil
 	}
@@ -120,7 +126,7 @@ URL: %s`, targetURL)
 	}
 
 	jsonBody, _ := json.Marshal(body)
-	req, _ := http.NewRequest("POST", "https://api.groq.com/openai/v1/chat/completions", bytes.NewReader(jsonBody))
+	req, _ := http.NewRequest("POST", apiURL, bytes.NewReader(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.apiKey)
 
