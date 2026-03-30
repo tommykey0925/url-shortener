@@ -58,11 +58,23 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bootstrap .
           zip lambda.zip bootstrap
 
-      - name: Deploy to Lambda
+      - name: Deploy API Lambda
         run: |
           aws lambda update-function-code \
-            --function-name $LAMBDA_FUNCTION \
+            --function-name url-shortener-api \
             --zip-file fileb://api/lambda.zip
+
+      - name: Build Monitor Lambda
+        run: |
+          cd api
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bootstrap ./cmd/monitor/
+          zip monitor.zip bootstrap
+
+      - name: Deploy Monitor Lambda
+        run: |
+          aws lambda update-function-code \
+            --function-name url-shortener-monitor \
+            --zip-file fileb://api/monitor.zip
 
   deploy-web:
     runs-on: ubuntu-latest
