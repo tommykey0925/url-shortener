@@ -162,7 +162,7 @@ func (h *Handler) Summarize(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "version": "1.0.0"})
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "version": "1.1.0"})
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
