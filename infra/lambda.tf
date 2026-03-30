@@ -5,7 +5,7 @@ resource "aws_lambda_function" "api" {
   handler       = "bootstrap"
   runtime       = "provided.al2023"
   architectures = ["x86_64"]
-  timeout       = 10
+  timeout       = 30
   memory_size   = 128
 
   filename         = "${path.module}/lambda-placeholder.zip"

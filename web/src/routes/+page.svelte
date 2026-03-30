@@ -18,9 +18,29 @@
 	let summaryText = $state('');
 	let showSummary = $state(false);
 
+	function getMyCodes(): string[] {
+		try {
+			const raw = localStorage.getItem('my_urls');
+			return raw ? JSON.parse(raw) : [];
+		} catch { return []; }
+	}
+
+	function addMyCode(code: string) {
+		const codes = getMyCodes();
+		codes.push(code);
+		localStorage.setItem('my_urls', JSON.stringify(codes));
+	}
+
+	function removeMyCode(code: string) {
+		const codes = getMyCodes().filter(c => c !== code);
+		localStorage.setItem('my_urls', JSON.stringify(codes));
+	}
+
 	async function loadUrls() {
 		try {
-			urls = (await listUrls()) ?? [];
+			const all = (await listUrls()) ?? [];
+			const myCodes = getMyCodes();
+			urls = all.filter(u => myCodes.includes(u.code));
 		} catch {
 			urls = [];
 		}
@@ -37,6 +57,7 @@
 
 		try {
 			result = await shortenUrl(newUrl);
+			addMyCode(result.code);
 			newUrl = '';
 			await loadUrls();
 		} catch (err) {
@@ -49,6 +70,7 @@
 	async function handleDelete(code: string) {
 		try {
 			await deleteUrl(code);
+			removeMyCode(code);
 			await loadUrls();
 		} catch {
 			error = 'Failed to delete URL';
