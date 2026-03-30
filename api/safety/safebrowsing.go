@@ -11,12 +11,14 @@ import (
 type SafeBrowsingClient struct {
 	apiKey     string
 	httpClient *http.Client
+	baseURL    string
 }
 
 func NewSafeBrowsingClient(apiKey string) *SafeBrowsingClient {
 	return &SafeBrowsingClient{
 		apiKey:     apiKey,
 		httpClient: &http.Client{Timeout: 5 * time.Second},
+		baseURL:    "https://safebrowsing.googleapis.com/v4/threatMatches:find",
 	}
 }
 
@@ -65,9 +67,9 @@ func (c *SafeBrowsingClient) Check(targetURL string) (bool, string, error) {
 	}
 
 	jsonBody, _ := json.Marshal(body)
-	url := fmt.Sprintf("https://safebrowsing.googleapis.com/v4/threatMatches:find?key=%s", c.apiKey)
+	apiURL := fmt.Sprintf("%s?key=%s", c.baseURL, c.apiKey)
 
-	resp, err := c.httpClient.Post(url, "application/json", bytes.NewReader(jsonBody))
+	resp, err := c.httpClient.Post(apiURL, "application/json", bytes.NewReader(jsonBody))
 	if err != nil {
 		return true, "check failed (network error)", nil
 	}

@@ -11,9 +11,19 @@ type CheckResult struct {
 	Detail string `json:"detail"`
 }
 
+// SafeBrowsingChecker is the interface for URL threat checking.
+type SafeBrowsingChecker interface {
+	Check(targetURL string) (bool, string, error)
+}
+
+// AISummarizer is the interface for AI-based URL summarization.
+type AISummarizer interface {
+	Summarize(targetURL string) (string, error)
+}
+
 type Checker struct {
-	sb *SafeBrowsingClient
-	ai *AIClient
+	sb SafeBrowsingChecker
+	ai AISummarizer
 }
 
 func NewChecker(safeBrowsingKey, groqKey string) *Checker {
@@ -21,6 +31,10 @@ func NewChecker(safeBrowsingKey, groqKey string) *Checker {
 		sb: NewSafeBrowsingClient(safeBrowsingKey),
 		ai: NewAIClient(groqKey),
 	}
+}
+
+func NewCheckerWithDeps(sb SafeBrowsingChecker, ai AISummarizer) *Checker {
+	return &Checker{sb: sb, ai: ai}
 }
 
 func (c *Checker) Check(targetURL string) CheckResult {
