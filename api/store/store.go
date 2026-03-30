@@ -99,6 +99,20 @@ func (s *Store) IncrementClicks(ctx context.Context, code string) error {
 	return err
 }
 
+func (s *Store) UpdateSafeStatus(ctx context.Context, code, status string) error {
+	_, err := s.client.UpdateItem(ctx, &dynamodb.UpdateItemInput{
+		TableName: &s.tableName,
+		Key: map[string]types.AttributeValue{
+			"code": &types.AttributeValueMemberS{Value: code},
+		},
+		UpdateExpression: aws.String("SET safe_status = :s"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":s": &types.AttributeValueMemberS{Value: status},
+		},
+	})
+	return err
+}
+
 func (s *Store) Delete(ctx context.Context, code string) error {
 	_, err := s.client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
 		TableName: &s.tableName,
