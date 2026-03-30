@@ -39,6 +39,13 @@ func New() *Store {
 	}
 }
 
+func NewWithClient(client *dynamodb.Client, tableName string) *Store {
+	return &Store{
+		client:    client,
+		tableName: tableName,
+	}
+}
+
 func (s *Store) Put(ctx context.Context, code, originalURL, safeStatus string) (*model.URL, error) {
 	u := &model.URL{
 		Code:       code,

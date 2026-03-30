@@ -26,6 +26,27 @@ jobs:
             go build -o /dev/null .
           '
 
+  integration-test-api:
+    runs-on: ubuntu-latest
+    services:
+      dynamodb-local:
+        image: amazon/dynamodb-local:latest
+        ports:
+          - 8000:8000
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - uses: flox/install-flox-action@main
+
+      - name: Integration tests
+        run: |
+          flox activate -- bash -c '
+            cd api
+            go test -tags integration -v ./store/... ./cmd/monitor/...
+          '
+
   build-web:
     runs-on: ubuntu-latest
     steps:
