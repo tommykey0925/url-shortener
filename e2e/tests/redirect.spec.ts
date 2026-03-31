@@ -83,6 +83,41 @@ test.describe("Redirect - unsafe URL warning page", () => {
   });
 });
 
+test.describe("Real Safe Browsing integration", () => {
+  test("malware test URL is rejected by Safe Browsing API", async ({
+    request,
+  }) => {
+    const res = await request.post(`${API}/api/shorten`, {
+      data: { url: "http://testsafebrowsing.appspot.com/s/malware.html" },
+    });
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain("unsafe URL");
+  });
+
+  test("phishing test URL is rejected by Safe Browsing API", async ({
+    request,
+  }) => {
+    const res = await request.post(`${API}/api/shorten`, {
+      data: { url: "http://testsafebrowsing.appspot.com/s/phishing.html" },
+    });
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain("unsafe URL");
+  });
+
+  test("unwanted software test URL is rejected by Safe Browsing API", async ({
+    request,
+  }) => {
+    const res = await request.post(`${API}/api/shorten`, {
+      data: { url: "http://testsafebrowsing.appspot.com/s/unwanted.html" },
+    });
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain("unsafe URL");
+  });
+});
+
 test.describe("Health endpoint", () => {
   test("returns ok status", async ({ request }) => {
     const res = await request.get(`${API}/health`);
