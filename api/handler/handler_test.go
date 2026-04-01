@@ -9,9 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tommykey0925/url-shortener-api/model"
-	"github.com/tommykey0925/url-shortener-api/safety"
-	"github.com/tommykey0925/url-shortener-api/store"
+	"github.com/tommykey-apps/url-shortener-api/model"
+	"github.com/tommykey-apps/url-shortener-api/safety"
+	"github.com/tommykey-apps/url-shortener-api/store"
 )
 
 // --- Mock Store ---

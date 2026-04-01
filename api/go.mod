@@ -1,4 +1,4 @@
-module github.com/tommykey0925/url-shortener-api
+module github.com/tommykey-apps/url-shortener-api
 
 go 1.25.7
 

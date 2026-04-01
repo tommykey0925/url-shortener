@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/tommykey0925/url-shortener-api/model"
+	"github.com/tommykey-apps/url-shortener-api/model"
 )
 
 var ErrNotFound = errors.New("url not found")

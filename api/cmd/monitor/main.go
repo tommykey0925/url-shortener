@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/tommykey0925/url-shortener-api/model"
-	"github.com/tommykey0925/url-shortener-api/safety"
-	"github.com/tommykey0925/url-shortener-api/store"
+	"github.com/tommykey-apps/url-shortener-api/model"
+	"github.com/tommykey-apps/url-shortener-api/safety"
+	"github.com/tommykey-apps/url-shortener-api/store"
 )
 
 // MonitorStore is the interface for store operations used by the monitor.
