@@ -10,10 +10,10 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
-	"github.com/tommykey0925/url-shortener-api/handler"
-	"github.com/tommykey0925/url-shortener-api/middleware"
-	"github.com/tommykey0925/url-shortener-api/safety"
-	"github.com/tommykey0925/url-shortener-api/store"
+	"github.com/tommykey-apps/url-shortener-api/handler"
+	"github.com/tommykey-apps/url-shortener-api/middleware"
+	"github.com/tommykey-apps/url-shortener-api/safety"
+	"github.com/tommykey-apps/url-shortener-api/store"
 )
 
 func setupMux() http.Handler {
