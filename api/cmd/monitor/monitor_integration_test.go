@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/tommykey0925/url-shortener-api/store"
+	"github.com/tommykey-apps/url-shortener-api/store"
 )
 
 const testTableName = "url-shortener-monitor-test"
