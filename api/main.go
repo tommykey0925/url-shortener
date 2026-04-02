@@ -16,6 +16,13 @@ import (
 	"github.com/tommykey-apps/url-shortener-api/store"
 )
 
+// @title URL Shortener API
+// @version 1.0.0
+// @description URL短縮 + クリック計測サービスのAPI。登録時にDNS解決・Google Safe Browsing・AIによる安全性チェックを実施。
+
+// @host url.tommykeyapp.com
+// @BasePath /
+
 func setupMux() http.Handler {
 	s := store.New()
 	checker := safety.NewChecker(os.Getenv("GOOGLE_SAFE_BROWSING_API_KEY"), os.Getenv("GROQ_API_KEY"))

@@ -1,0 +1,197 @@
+basePath: /
+definitions:
+  model.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  model.ShortenRequest:
+    properties:
+      url:
+        type: string
+    type: object
+  model.ShortenResponse:
+    properties:
+      code:
+        type: string
+      safe_status:
+        type: string
+      short_url:
+        type: string
+    type: object
+  model.URL:
+    properties:
+      clicks:
+        type: integer
+      code:
+        type: string
+      created_at:
+        type: string
+      original_url:
+        type: string
+      safe_status:
+        type: string
+    type: object
+host: url.tommykeyapp.com
+info:
+  contact: {}
+  description: URL短縮 + クリック計測サービスのAPI。登録時にDNS解決・Google Safe Browsing・AIによる安全性チェックを実施。
+  title: URL Shortener API
+  version: 1.0.0
+paths:
+  /api/shorten:
+    post:
+      consumes:
+      - application/json
+      description: URLを受け取り短縮コードを生成。DNS解決チェック + Google Safe Browsing APIで安全性を検証し、危険なURLは拒否する。
+      parameters:
+      - description: 短縮したいURL
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.ShortenRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.ShortenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: URLを短縮
+      tags:
+      - URLs
+  /api/urls:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.URL'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: URL一覧取得
+      tags:
+      - URLs
+  /api/urls/{code}:
+    delete:
+      parameters:
+      - description: 短縮コード
+        in: path
+        name: code
+        required: true
+        type: string
+      responses:
+        "204":
+          description: 削除成功
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: URL削除
+      tags:
+      - URLs
+    get:
+      parameters:
+      - description: 短縮コード
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.URL'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: URL詳細取得
+      tags:
+      - URLs
+  /api/urls/{code}/summarize:
+    post:
+      description: 短縮URLの遷移先ページをAI (Groq / Llama 3.3 70B) で要約する。
+      parameters:
+      - description: 短縮コード
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: AIによるURL遷移先の要約
+      tags:
+      - AI
+  /health:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: ヘルスチェック
+      tags:
+      - System
+  /r/{code}:
+    get:
+      description: 短縮コードに対応する元URLへ301リダイレクト。クリック数をカウント。unsafe判定のURLは警告ページを表示。
+      parameters:
+      - description: 短縮コード
+        in: path
+        name: code
+        required: true
+        type: string
+      responses:
+        "200":
+          description: unsafe URLの場合、警告ページを表示
+          schema:
+            type: string
+        "301":
+          description: 元URLへリダイレクト
+        "404":
+          description: 該当コードなし
+      summary: リダイレクト
+      tags:
+      - Redirect
+swagger: "2.0"
