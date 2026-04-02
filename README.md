@@ -59,6 +59,8 @@ url-shortener/
 
 ## APIの仕様
 
+📖 **[Swagger UI (API ドキュメント)](https://tommykey-apps.github.io/url-shortener/)**
+
 | Method | Path | 何するか |
 |--------|------|---------|
 | POST | `/api/shorten` | URLを短縮（DNS + Safe Browsing チェック付き） |
