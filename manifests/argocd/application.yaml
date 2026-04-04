@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/tommykey0925/url-shortener.git
+    repoURL: https://github.com/tommykey-apps/url-shortener.git
     targetRevision: main
     path: manifests/base
   destination:

@@ -1,0 +1,43 @@
+name: Deploy Swagger UI to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/swagger.yaml"
+      - ".github/workflows/pages.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Swagger UI
+        run: |
+          SWAGGER_VERSION=$(curl -s https://api.github.com/repos/swagger-api/swagger-ui/releases/latest | jq -r .tag_name)
+          curl -sL "https://github.com/swagger-api/swagger-ui/archive/${SWAGGER_VERSION}.tar.gz" | tar xz
+          mkdir -p _site
+          cp -r swagger-ui-*/dist/* _site/
+          cp docs/swagger.yaml _site/
+          sed -i 's|https://petstore.swagger.io/v2/swagger.json|swagger.yaml|g' _site/swagger-initializer.js
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

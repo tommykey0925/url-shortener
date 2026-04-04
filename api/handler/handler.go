@@ -12,9 +12,9 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/tommykey0925/url-shortener-api/model"
-	"github.com/tommykey0925/url-shortener-api/safety"
-	"github.com/tommykey0925/url-shortener-api/store"
+	"github.com/tommykey-apps/url-shortener-api/model"
+	"github.com/tommykey-apps/url-shortener-api/safety"
+	"github.com/tommykey-apps/url-shortener-api/store"
 )
 
 // URLStore is the interface for URL persistence operations.
@@ -45,6 +45,17 @@ func NewWithDeps(s URLStore, c SafetyChecker) *Handler {
 	return &Handler{store: s, checker: c}
 }
 
+// Shorten godoc
+// @Summary URLを短縮
+// @Description URLを受け取り短縮コードを生成。DNS解決チェック + Google Safe Browsing APIで安全性を検証し、危険なURLは拒否する。
+// @Tags URLs
+// @Accept json
+// @Produce json
+// @Param request body model.ShortenRequest true "短縮したいURL"
+// @Success 201 {object} model.ShortenResponse
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Router /api/shorten [post]
 func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 	var req model.ShortenRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -84,6 +95,15 @@ func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Get godoc
+// @Summary URL詳細取得
+// @Tags URLs
+// @Produce json
+// @Param code path string true "短縮コード"
+// @Success 200 {object} model.URL
+// @Failure 404 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Router /api/urls/{code} [get]
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	code := r.PathValue("code")
 	u, err := h.store.Get(r.Context(), code)
@@ -98,6 +118,13 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, u)
 }
 
+// List godoc
+// @Summary URL一覧取得
+// @Tags URLs
+// @Produce json
+// @Success 200 {array} model.URL
+// @Failure 500 {object} model.ErrorResponse
+// @Router /api/urls [get]
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	urls, err := h.store.List(r.Context())
 	if err != nil {
@@ -107,6 +134,13 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, urls)
 }
 
+// Delete godoc
+// @Summary URL削除
+// @Tags URLs
+// @Param code path string true "短縮コード"
+// @Success 204 "削除成功"
+// @Failure 500 {object} model.ErrorResponse
+// @Router /api/urls/{code} [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	code := r.PathValue("code")
 	if err := h.store.Delete(r.Context(), code); err != nil {
@@ -116,6 +150,15 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// Redirect godoc
+// @Summary リダイレクト
+// @Description 短縮コードに対応する元URLへ301リダイレクト。クリック数をカウント。unsafe判定のURLは警告ページを表示。
+// @Tags Redirect
+// @Param code path string true "短縮コード"
+// @Success 301 "元URLへリダイレクト"
+// @Success 200 {string} string "unsafe URLの場合、警告ページを表示"
+// @Failure 404 "該当コードなし"
+// @Router /r/{code} [get]
 func (h *Handler) Redirect(w http.ResponseWriter, r *http.Request) {
 	code := r.PathValue("code")
 	u, err := h.store.Get(r.Context(), code)
@@ -144,6 +187,16 @@ func (h *Handler) Redirect(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, u.Original, http.StatusMovedPermanently)
 }
 
+// Summarize godoc
+// @Summary AIによるURL遷移先の要約
+// @Description 短縮URLの遷移先ページをAI (Groq / Llama 3.3 70B) で要約する。
+// @Tags AI
+// @Produce json
+// @Param code path string true "短縮コード"
+// @Success 200 {object} map[string]string
+// @Failure 404 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Router /api/urls/{code}/summarize [post]
 func (h *Handler) Summarize(w http.ResponseWriter, r *http.Request) {
 	code := r.PathValue("code")
 	u, err := h.store.Get(r.Context(), code)
@@ -161,6 +214,12 @@ func (h *Handler) Summarize(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"summary": summary})
 }
 
+// Health godoc
+// @Summary ヘルスチェック
+// @Tags System
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Router /health [get]
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "version": "1.0.0"})
 }
