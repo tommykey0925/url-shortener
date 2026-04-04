@@ -1,3 +1,14 @@
+# Placeholder zip for initial Monitor Lambda creation (real code is deployed by CI/CD)
+data "archive_file" "monitor_placeholder" {
+  type        = "zip"
+  output_path = "${path.module}/monitor-placeholder.zip"
+
+  source {
+    content  = "placeholder"
+    filename = "bootstrap"
+  }
+}
+
 # URL Monitor Lambda - Daily Safe Browsing re-check
 resource "aws_lambda_function" "monitor" {
   function_name = "${var.project}-monitor"
@@ -8,8 +19,12 @@ resource "aws_lambda_function" "monitor" {
   timeout       = 60
   memory_size   = 128
 
-  filename         = "${path.module}/lambda-monitor-placeholder.zip"
-  source_code_hash = filebase64sha256("${path.module}/lambda-monitor-placeholder.zip")
+  filename         = data.archive_file.monitor_placeholder.output_path
+  source_code_hash = data.archive_file.monitor_placeholder.output_base64sha256
+
+  lifecycle {
+    ignore_changes = [filename, source_code_hash]
+  }
 
   environment {
     variables = {
