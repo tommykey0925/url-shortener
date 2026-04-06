@@ -10,12 +10,6 @@ variable "project" {
   default     = "url-shortener"
 }
 
-variable "cluster_version" {
-  description = "EKS cluster version"
-  type        = string
-  default     = "1.32"
-}
-
 variable "google_safe_browsing_api_key" {
   description = "Google Safe Browsing API key"
   type        = string
@@ -29,4 +23,3 @@ variable "groq_api_key" {
   sensitive   = true
   default     = ""
 }
-
