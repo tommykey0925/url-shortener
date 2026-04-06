@@ -19,7 +19,7 @@ URLを短くしてクリック数も計測できるサービス。登録時にUR
 | AI | Groq API (Llama 3.3 70B) — URL遷移先の要約・安全性判定 |
 | セキュリティ | Google Safe Browsing API, DNS解決チェック |
 | IaC | Terraform (S3バックエンド + DynamoDB state lock) |
-| CI/CD | GitHub Actions + flox (Terraform apply + Lambda deploy 自動化) |
+| CI/CD | GitHub Actions (setup-go + setup-node) |
 | 配信 | CloudFront (S3 + API Gateway を同一ドメインで配信) |
 
 ## 使ってるAWSサービス
@@ -32,8 +32,15 @@ URLを短くしてクリック数も計測できるサービス。登録時にUR
 | S3 | フロントのビルド成果物 + Terraform state の保存 |
 | CloudFront | CDN。S3とAPI Gatewayの前に立ってHTTPS配信 |
 | Route 53 | カスタムドメイン (url.tommykeyapp.com) のDNS管理 |
-| ACM | SSL証明書 (*.tommykeyapp.com ワイルドカード) |
+| ACM | SSL証明書 (*.tommykeyapp.com ワイルドカード、共有インフラで管理) |
 | IAM | LambdaにDynamoDBアクセス権限を付与 |
+| EventBridge | 日次の安全性再チェックスケジュール |
+
+> VPC, EKS, ALB Controller, ACM証明書は [infra-shared](https://github.com/tommykey-apps/infra-shared) リポジトリで管理。本プロジェクトはサーバーレス構成のため VPC 不要。
+
+## API ドキュメント
+
+📖 **[Swagger UI](https://tommykey-apps.github.io/url-shortener/)**
 
 ## セキュリティ・安全性チェック
 
@@ -52,24 +59,10 @@ url-shortener/
 ├── api/          # GoのAPI（Lambda対応）
 │   └── safety/   # URL安全性チェック（Safe Browsing, AI, DNS）
 ├── web/          # SvelteKitのフロント（shadcn-svelte）
-├── infra/        # Terraform（S3 backend）
-├── docs/         # 構成図 (draw.io)
-└── .github/      # GitHub Actions（Lambda deploy + Terraform apply）
+├── infra/        # Terraform（Lambda, API Gateway, DynamoDB, CloudFront 等）
+├── docs/         # 構成図 (draw.io) + Swagger
+└── .github/      # GitHub Actions（CI/CD）
 ```
-
-## APIの仕様
-
-📖 **[Swagger UI (API ドキュメント)](https://tommykey-apps.github.io/url-shortener/)**
-
-| Method | Path | 何するか |
-|--------|------|---------|
-| POST | `/api/shorten` | URLを短縮（DNS + Safe Browsing チェック付き） |
-| GET | `/api/urls` | 一覧取得 |
-| GET | `/api/urls/{code}` | 1件取得 |
-| DELETE | `/api/urls/{code}` | 削除 |
-| POST | `/api/urls/{code}/summarize` | AIによるURL遷移先の要約 |
-| GET | `/r/{code}` | 元のURLにリダイレクト |
-| GET | `/health` | ヘルスチェック |
 
 ## ローカルで動かす
 
