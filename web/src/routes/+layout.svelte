@@ -1,5 +1,4 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
 	import '../app.css';
 	import { onMount } from 'svelte';
 
@@ -11,7 +10,6 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
 	<title>URL Shortener</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 </svelte:head>
