@@ -1,5 +1,17 @@
 data "aws_caller_identity" "current" {}
 
+data "aws_eks_cluster" "shared" {
+  name = "${var.project}-cluster"
+}
+
+locals {
+  oidc_provider_arn = replace(
+    data.aws_eks_cluster.shared.identity[0].oidc[0].issuer,
+    "https://",
+    ""
+  )
+}
+
 # IAM role for the API pods to access DynamoDB
 module "irsa_dynamodb" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
@@ -9,7 +21,7 @@ module "irsa_dynamodb" {
 
   oidc_providers = {
     main = {
-      provider_arn               = module.eks.oidc_provider_arn
+      provider_arn               = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.oidc_provider_arn}"
       namespace_service_accounts = ["${var.project}:${var.project}-api"]
     }
   }
