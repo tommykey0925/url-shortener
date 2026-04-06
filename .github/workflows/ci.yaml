@@ -11,18 +11,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: DeterminateSystems/nix-installer-action@main
-
-      - uses: flox/install-flox-action@main
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: api/go.mod
+          cache-dependency-path: api/go.sum
 
       - name: Build and test
         run: |
-          flox activate -- bash -c '
-            cd api
-            go vet ./...
-            go test ./...
-            go build -o /dev/null .
-          '
+          cd api
+          go vet ./...
+          go test ./...
+          go build -o /dev/null .
 
   integration-test-api:
     runs-on: ubuntu-latest
@@ -34,30 +33,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: DeterminateSystems/nix-installer-action@main
-
-      - uses: flox/install-flox-action@main
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: api/go.mod
+          cache-dependency-path: api/go.sum
 
       - name: Integration tests
         run: |
-          flox activate -- bash -c '
-            cd api
-            go test -tags integration -v ./store/... ./cmd/monitor/...
-          '
+          cd api
+          go test -tags integration -v ./store/... ./cmd/monitor/...
 
   build-web:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
-      - uses: flox/install-flox-action@main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
 
       - name: Build SvelteKit
         run: |
-          flox activate -- bash -c '
-            cd web
-            pnpm install --frozen-lockfile
-            pnpm build
-          '
+          cd web
+          pnpm install --frozen-lockfile
+          pnpm build
