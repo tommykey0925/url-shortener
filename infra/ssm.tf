@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 resource "aws_ssm_parameter" "cloudfront_distribution_id" {
   name  = "/${var.project}/cloudfront-distribution-id"
   type  = "String"
