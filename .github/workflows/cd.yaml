@@ -17,9 +17,23 @@ permissions:
   contents: read
 
 jobs:
-  deploy-infra:
+  detect-changes:
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.modified, 'infra/') || github.event_name == 'workflow_dispatch'
+    outputs:
+      infra: ${{ steps.filter.outputs.infra }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            infra:
+              - 'infra/**'
+
+  deploy-infra:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    if: needs.detect-changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
 
