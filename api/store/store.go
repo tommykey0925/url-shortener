@@ -93,6 +93,9 @@ func (s *Store) Get(ctx context.Context, code string) (*model.URL, error) {
 }
 
 func (s *Store) IncrementClicks(ctx context.Context, code string) error {
+	today := time.Now().UTC().Format("2006-01-02")
+
+	// Update total clicks
 	_, err := s.client.UpdateItem(ctx, &dynamodb.UpdateItemInput{
 		TableName: &s.tableName,
 		Key: map[string]types.AttributeValue{
@@ -103,7 +106,51 @@ func (s *Store) IncrementClicks(ctx context.Context, code string) error {
 			":inc": &types.AttributeValueMemberN{Value: "1"},
 		},
 	})
+	if err != nil {
+		return err
+	}
+
+	// Record daily click in stats table
+	statsTable := s.tableName + "-stats"
+	_, err = s.client.UpdateItem(ctx, &dynamodb.UpdateItemInput{
+		TableName: &statsTable,
+		Key: map[string]types.AttributeValue{
+			"code": &types.AttributeValueMemberS{Value: code},
+			"date": &types.AttributeValueMemberS{Value: today},
+		},
+		UpdateExpression: aws.String("SET clicks = if_not_exists(clicks, :zero) + :inc"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":inc":  &types.AttributeValueMemberN{Value: "1"},
+			":zero": &types.AttributeValueMemberN{Value: "0"},
+		},
+	})
 	return err
+}
+
+func (s *Store) GetClickStats(ctx context.Context, code string, days int) ([]model.DailyClicks, error) {
+	statsTable := s.tableName + "-stats"
+	startDate := time.Now().UTC().AddDate(0, 0, -days).Format("2006-01-02")
+
+	out, err := s.client.Query(ctx, &dynamodb.QueryInput{
+		TableName:              &statsTable,
+		KeyConditionExpression: aws.String("code = :code AND #d >= :start"),
+		ExpressionAttributeNames: map[string]string{
+			"#d": "date",
+		},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":code":  &types.AttributeValueMemberS{Value: code},
+			":start": &types.AttributeValueMemberS{Value: startDate},
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("query stats: %w", err)
+	}
+
+	var stats []model.DailyClicks
+	if err := attributevalue.UnmarshalListOfMaps(out.Items, &stats); err != nil {
+		return nil, fmt.Errorf("unmarshal stats: %w", err)
+	}
+	return stats, nil
 }
 
 func (s *Store) UpdateSafeStatus(ctx context.Context, code, status string) error {
