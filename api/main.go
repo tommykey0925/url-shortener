@@ -34,6 +34,7 @@ func setupMux() http.Handler {
 	mux.HandleFunc("GET /api/urls/{code}", h.Get)
 	mux.HandleFunc("DELETE /api/urls/{code}", h.Delete)
 	mux.HandleFunc("POST /api/urls/{code}/summarize", h.Summarize)
+	mux.HandleFunc("GET /api/urls/{code}/stats", h.Stats)
 	mux.HandleFunc("GET /r/{code}", h.Redirect)
 	mux.HandleFunc("GET /health", h.Health)
 
