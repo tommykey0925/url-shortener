@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 
 	"github.com/tommykey-apps/url-shortener-api/model"
 	"github.com/tommykey-apps/url-shortener-api/safety"
@@ -24,7 +25,10 @@ type URLStore interface {
 	List(ctx context.Context) ([]model.URL, error)
 	Delete(ctx context.Context, code string) error
 	IncrementClicks(ctx context.Context, code string) error
+	GetClickStats(ctx context.Context, code string, days int) ([]model.DailyClicks, error)
 }
+
+type DailyClicks = model.DailyClicks
 
 // SafetyChecker is the interface for URL safety checking.
 type SafetyChecker interface {
@@ -212,6 +216,50 @@ func (h *Handler) Summarize(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, map[string]string{"summary": summary})
+}
+
+// Stats godoc
+// @Summary クリック統計取得
+// @Description 短縮URLの日別クリック統計を取得する。デフォルトは過去30日分。
+// @Tags URLs
+// @Produce json
+// @Param code path string true "短縮コード"
+// @Param days query int false "取得日数（デフォルト30）"
+// @Success 200 {object} model.ClickStats
+// @Failure 404 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Router /api/urls/{code}/stats [get]
+func (h *Handler) Stats(w http.ResponseWriter, r *http.Request) {
+	code := r.PathValue("code")
+	u, err := h.store.Get(r.Context(), code)
+	if err != nil {
+		if errors.Is(err, store.ErrNotFound) {
+			writeJSON(w, http.StatusNotFound, model.ErrorResponse{Error: "not found"})
+			return
+		}
+		writeJSON(w, http.StatusInternalServerError, model.ErrorResponse{Error: "internal error"})
+		return
+	}
+
+	days := 30
+	if d := r.URL.Query().Get("days"); d != "" {
+		if parsed, err := strconv.Atoi(d); err == nil && parsed > 0 && parsed <= 365 {
+			days = parsed
+		}
+	}
+
+	daily, err := h.store.GetClickStats(r.Context(), code, days)
+	if err != nil {
+		log.Printf("ERROR: GetClickStats failed: %v", err)
+		writeJSON(w, http.StatusInternalServerError, model.ErrorResponse{Error: "failed to get stats"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, model.ClickStats{
+		Code:        code,
+		TotalClicks: u.Clicks,
+		Daily:       daily,
+	})
 }
 
 // Health godoc

@@ -5,6 +5,17 @@ export interface URL {
 	clicks: number;
 }
 
+export interface DailyClicks {
+	date: string;
+	clicks: number;
+}
+
+export interface ClickStats {
+	code: string;
+	total_clicks: number;
+	daily: DailyClicks[];
+}
+
 export interface ShortenResponse {
 	code: string;
 	short_url: string;
@@ -32,6 +43,12 @@ export async function listUrls(): Promise<URL[]> {
 export async function deleteUrl(code: string): Promise<void> {
 	const res = await fetch(`/api/urls/${code}`, { method: 'DELETE' });
 	if (!res.ok) throw new Error('Failed to delete URL');
+}
+
+export async function getClickStats(code: string, days = 30): Promise<ClickStats> {
+	const res = await fetch(`/api/urls/${code}/stats?days=${days}`);
+	if (!res.ok) throw new Error('Failed to fetch stats');
+	return res.json();
 }
 
 export async function summarizeUrl(code: string): Promise<string> {
