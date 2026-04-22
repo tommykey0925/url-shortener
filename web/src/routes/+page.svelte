@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { shortenUrl, listUrls, deleteUrl, summarizeUrl, type URL as ShortURL, type ShortenResponse } from '$lib/api';
+	import { shortenUrl, listUrls, deleteUrl, summarizeUrl, getClickStats, type URL as ShortURL, type ShortenResponse, type ClickStats } from '$lib/api';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Card from '$lib/components/ui/card';
@@ -17,6 +17,9 @@
 	let summarizing = $state('');
 	let summaryText = $state('');
 	let showSummary = $state(false);
+	let statsLoading = $state('');
+	let statsData = $state<ClickStats | null>(null);
+	let showStats = $state(false);
 
 	function getMyCodes(): string[] {
 		try {
@@ -94,6 +97,19 @@
 			showSummary = true;
 		} finally {
 			summarizing = '';
+		}
+	}
+
+	async function handleStats(code: string) {
+		statsLoading = code;
+		statsData = null;
+		try {
+			statsData = await getClickStats(code);
+			showStats = true;
+		} catch {
+			error = 'Failed to load stats';
+		} finally {
+			statsLoading = '';
 		}
 	}
 
@@ -200,6 +216,14 @@
 									<Button
 										variant="ghost"
 										size="sm"
+										disabled={statsLoading === url.code}
+										onclick={() => handleStats(url.code)}
+									>
+										{statsLoading === url.code ? '読込中...' : '統計'}
+									</Button>
+									<Button
+										variant="ghost"
+										size="sm"
 										disabled={summarizing === url.code}
 										onclick={() => handleSummarize(url.code)}
 									>
@@ -248,6 +272,14 @@
 								<Button
 									variant="ghost"
 									size="sm"
+									disabled={statsLoading === url.code}
+									onclick={() => handleStats(url.code)}
+								>
+									{statsLoading === url.code ? '読込中...' : '統計'}
+								</Button>
+								<Button
+									variant="ghost"
+									size="sm"
 									disabled={summarizing === url.code}
 									onclick={() => handleSummarize(url.code)}
 								>
@@ -269,6 +301,53 @@
 		</div>
 	{/if}
 </section>
+
+<!-- Click Stats Dialog -->
+<Dialog.Root bind:open={showStats}>
+	<Dialog.Content>
+		<Dialog.Header>
+			<Dialog.Title>クリック統計 — {statsData?.code}</Dialog.Title>
+		</Dialog.Header>
+		{#if statsData}
+			<div class="space-y-4">
+				<div class="text-center">
+					<p class="text-3xl font-bold text-primary">{statsData.total_clicks}</p>
+					<p class="text-sm text-muted-foreground">総クリック数</p>
+				</div>
+				{#if statsData.daily.length > 0}
+					<div>
+						<p class="mb-2 text-sm font-medium">日別クリック数（過去30日）</p>
+						<div class="max-h-60 overflow-y-auto">
+							<Table.Root>
+								<Table.Header>
+									<Table.Row>
+										<Table.Head>日付</Table.Head>
+										<Table.Head class="text-right">クリック数</Table.Head>
+									</Table.Row>
+								</Table.Header>
+								<Table.Body>
+									{#each statsData.daily as day}
+										<Table.Row>
+											<Table.Cell>{day.date}</Table.Cell>
+											<Table.Cell class="text-right">
+												<Badge variant="secondary">{day.clicks}</Badge>
+											</Table.Cell>
+										</Table.Row>
+									{/each}
+								</Table.Body>
+							</Table.Root>
+						</div>
+					</div>
+				{:else}
+					<p class="text-center text-sm text-muted-foreground">まだクリックデータがありません</p>
+				{/if}
+			</div>
+		{/if}
+		<Dialog.Footer>
+			<Button variant="secondary" onclick={() => (showStats = false)}>閉じる</Button>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>
 
 <!-- AI Summary Dialog -->
 <Dialog.Root bind:open={showSummary}>
