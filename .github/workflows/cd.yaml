@@ -46,6 +46,9 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Apply
+        env:
+          TF_VAR_groq_api_key: ${{ secrets.GROQ_API_KEY }}
+          TF_VAR_google_safe_browsing_api_key: ${{ secrets.GOOGLE_SAFE_BROWSING_API_KEY }}
         run: |
           cd infra
           terraform init

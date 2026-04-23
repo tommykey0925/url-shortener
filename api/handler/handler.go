@@ -207,6 +207,7 @@ func (h *Handler) Summarize(w http.ResponseWriter, r *http.Request) {
 
 	summary, err := h.checker.Summarize(u.Original)
 	if err != nil {
+		log.Printf("ERROR: AI summarize failed for code=%s: %v", code, err)
 		writeJSON(w, http.StatusInternalServerError, model.ErrorResponse{Error: "AI summarization failed"})
 		return
 	}
