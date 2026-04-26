@@ -63,3 +63,21 @@ jobs:
           cd web
           pnpm install --frozen-lockfile
           pnpm build
+
+  terraform-plan:
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_groq_api_key: ${{ secrets.GROQ_API_KEY }}
+      TF_VAR_google_safe_browsing_api_key: ${{ secrets.GOOGLE_SAFE_BROWSING_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      - uses: tommykey-apps/.github/.github/actions/terraform-plan@v1
+        with:
+          working-directory: infra
