@@ -29,6 +29,7 @@ resource "aws_lambda_function" "api" {
   environment {
     variables = {
       DYNAMODB_TABLE               = aws_dynamodb_table.urls.name
+      DYNAMODB_STATS_TABLE         = aws_dynamodb_table.urls_stats.name
       AWS_REGION_APP               = var.region
       BASE_URL                     = "https://url.tommykeyapp.com"
       GOOGLE_SAFE_BROWSING_API_KEY = var.google_safe_browsing_api_key
@@ -85,8 +86,12 @@ resource "aws_iam_role_policy" "lambda_dynamodb" {
           "dynamodb:UpdateItem",
           "dynamodb:DeleteItem",
           "dynamodb:Scan",
+          "dynamodb:Query",
         ]
-        Resource = aws_dynamodb_table.urls.arn
+        Resource = [
+          aws_dynamodb_table.urls.arn,
+          aws_dynamodb_table.urls_stats.arn,
+        ]
       }
     ]
   })

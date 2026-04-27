@@ -18,14 +18,19 @@ import (
 var ErrNotFound = errors.New("url not found")
 
 type Store struct {
-	client    *dynamodb.Client
-	tableName string
+	client         *dynamodb.Client
+	tableName      string
+	statsTableName string
 }
 
 func New() *Store {
 	tableName := os.Getenv("DYNAMODB_TABLE")
 	if tableName == "" {
 		tableName = "url-shortener"
+	}
+	statsTableName := os.Getenv("DYNAMODB_STATS_TABLE")
+	if statsTableName == "" {
+		statsTableName = tableName + "-stats"
 	}
 
 	cfg, err := config.LoadDefaultConfig(context.Background())
@@ -34,15 +39,17 @@ func New() *Store {
 	}
 
 	return &Store{
-		client:    dynamodb.NewFromConfig(cfg),
-		tableName: tableName,
+		client:         dynamodb.NewFromConfig(cfg),
+		tableName:      tableName,
+		statsTableName: statsTableName,
 	}
 }
 
-func NewWithClient(client *dynamodb.Client, tableName string) *Store {
+func NewWithClient(client *dynamodb.Client, tableName, statsTableName string) *Store {
 	return &Store{
-		client:    client,
-		tableName: tableName,
+		client:         client,
+		tableName:      tableName,
+		statsTableName: statsTableName,
 	}
 }
 
@@ -103,7 +110,53 @@ func (s *Store) IncrementClicks(ctx context.Context, code string) error {
 			":inc": &types.AttributeValueMemberN{Value: "1"},
 		},
 	})
-	return err
+	if err != nil {
+		return fmt.Errorf("update url clicks: %w", err)
+	}
+
+	today := time.Now().UTC().Format("2006-01-02")
+	_, err = s.client.UpdateItem(ctx, &dynamodb.UpdateItemInput{
+		TableName: &s.statsTableName,
+		Key: map[string]types.AttributeValue{
+			"code": &types.AttributeValueMemberS{Value: code},
+			"date": &types.AttributeValueMemberS{Value: today},
+		},
+		UpdateExpression: aws.String("SET clicks = if_not_exists(clicks, :zero) + :inc"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":inc":  &types.AttributeValueMemberN{Value: "1"},
+			":zero": &types.AttributeValueMemberN{Value: "0"},
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("update daily stats: %w", err)
+	}
+	return nil
+}
+
+func (s *Store) GetClickStats(ctx context.Context, code string, days int) ([]model.DailyClicks, error) {
+	startDate := time.Now().UTC().AddDate(0, 0, -days).Format("2006-01-02")
+
+	out, err := s.client.Query(ctx, &dynamodb.QueryInput{
+		TableName:              &s.statsTableName,
+		KeyConditionExpression: aws.String("code = :code AND #d >= :start"),
+		ExpressionAttributeNames: map[string]string{
+			"#d": "date",
+		},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":code":  &types.AttributeValueMemberS{Value: code},
+			":start": &types.AttributeValueMemberS{Value: startDate},
+		},
+		ScanIndexForward: aws.Bool(false), // 降順 (新しい日付から)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("query stats: %w", err)
+	}
+
+	stats := make([]model.DailyClicks, 0, len(out.Items))
+	if err := attributevalue.UnmarshalListOfMaps(out.Items, &stats); err != nil {
+		return nil, fmt.Errorf("unmarshal stats: %w", err)
+	}
+	return stats, nil
 }
 
 func (s *Store) UpdateSafeStatus(ctx context.Context, code, status string) error {

@@ -62,6 +62,16 @@ func (m *mockStore) IncrementClicks(ctx context.Context, code string) error {
 	return nil
 }
 
+func (m *mockStore) GetClickStats(ctx context.Context, code string, days int) ([]model.DailyClicks, error) {
+	if _, ok := m.urls[code]; !ok {
+		return nil, nil
+	}
+	return []model.DailyClicks{
+		{Date: "2026-04-28", Clicks: 5},
+		{Date: "2026-04-27", Clicks: 3},
+	}, nil
+}
+
 // --- Mock Checker ---
 
 type mockChecker struct {
@@ -342,6 +352,67 @@ func TestSummarize_AIError(t *testing.T) {
 
 	if w.Code != http.StatusInternalServerError {
 		t.Errorf("expected 500, got %d", w.Code)
+	}
+}
+
+func TestStats_Success(t *testing.T) {
+	s := newMockStore()
+	s.urls["abc"] = &model.URL{Code: "abc", Original: "https://example.com", Clicks: 8}
+	h := NewWithDeps(s, &mockChecker{})
+
+	req := httptest.NewRequest("GET", "/api/urls/abc/stats", nil)
+	req.SetPathValue("code", "abc")
+	w := httptest.NewRecorder()
+
+	h.Stats(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", w.Code)
+	}
+	var resp model.ClickStats
+	json.NewDecoder(w.Body).Decode(&resp)
+	if resp.Code != "abc" {
+		t.Errorf("expected code 'abc', got %q", resp.Code)
+	}
+	if resp.TotalClicks != 8 {
+		t.Errorf("expected 8 total clicks, got %d", resp.TotalClicks)
+	}
+	if len(resp.Daily) != 2 {
+		t.Errorf("expected 2 daily entries, got %d", len(resp.Daily))
+	}
+}
+
+func TestStats_NotFound(t *testing.T) {
+	h := NewWithDeps(newMockStore(), &mockChecker{})
+
+	req := httptest.NewRequest("GET", "/api/urls/nope/stats", nil)
+	req.SetPathValue("code", "nope")
+	w := httptest.NewRecorder()
+
+	h.Stats(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected 404, got %d", w.Code)
+	}
+}
+
+func TestStats_DaysQuery(t *testing.T) {
+	s := newMockStore()
+	s.urls["abc"] = &model.URL{Code: "abc", Original: "https://example.com"}
+	h := NewWithDeps(s, &mockChecker{})
+
+	// 不正な days パラメータでもエラーにならず default 30 として扱われる
+	cases := []string{"", "abc", "0", "-1", "9999", "30", "7"}
+	for _, q := range cases {
+		req := httptest.NewRequest("GET", "/api/urls/abc/stats?days="+q, nil)
+		req.SetPathValue("code", "abc")
+		w := httptest.NewRecorder()
+
+		h.Stats(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("days=%q: expected 200, got %d", q, w.Code)
+		}
 	}
 }
 

@@ -40,3 +40,20 @@ export async function summarizeUrl(code: string): Promise<string> {
 	const data = await res.json();
 	return data.summary;
 }
+
+export interface DailyClicks {
+	date: string;
+	clicks: number;
+}
+
+export interface ClickStats {
+	code: string;
+	total_clicks: number;
+	daily: DailyClicks[];
+}
+
+export async function getClickStats(code: string, days = 30): Promise<ClickStats> {
+	const res = await fetch(`/api/urls/${code}/stats?days=${days}`);
+	if (!res.ok) throw new Error('Failed to fetch stats');
+	return res.json();
+}

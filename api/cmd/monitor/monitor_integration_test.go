@@ -54,7 +54,7 @@ func setupMonitorTestStore(t *testing.T) *store.Store {
 		BillingMode: types.BillingModePayPerRequest,
 	})
 
-	s := store.NewWithClient(client, testTableName)
+	s := store.NewWithClient(client, testTableName, testTableName+"-stats")
 	items, _ := s.List(ctx)
 	for _, item := range items {
 		_ = s.Delete(ctx, item.Code)
