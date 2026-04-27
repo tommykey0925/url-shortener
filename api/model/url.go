@@ -23,3 +23,14 @@ type ShortenResponse struct {
 type ErrorResponse struct {
 	Error string `json:"error"`
 }
+
+type DailyClicks struct {
+	Date   string `json:"date" dynamodbav:"date"`
+	Clicks int64  `json:"clicks" dynamodbav:"clicks"`
+}
+
+type ClickStats struct {
+	Code        string        `json:"code"`
+	TotalClicks int64         `json:"total_clicks"`
+	Daily       []DailyClicks `json:"daily"`
+}

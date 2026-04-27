@@ -14,3 +14,24 @@ resource "aws_dynamodb_table" "urls" {
     Project = var.project
   }
 }
+
+resource "aws_dynamodb_table" "urls_stats" {
+  name         = "${var.project}-stats"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "code"
+  range_key    = "date"
+
+  attribute {
+    name = "code"
+    type = "S"
+  }
+
+  attribute {
+    name = "date"
+    type = "S"
+  }
+
+  tags = {
+    Project = var.project
+  }
+}
