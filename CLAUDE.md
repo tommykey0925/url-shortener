@@ -79,6 +79,11 @@ cd infra && terraform destroy   # 撤去 (使わないときは必ず destroy)
 - コスト節約: 使わないときは `terraform destroy`、デモ時だけ `terraform apply`
 - GitOps: ArgoCD が manifests リポジトリの変更を検知して自動デプロイ
 
+## DB スキーマドキュメント
+
+`docs-db/` に DynamoDB スキーマドキュメント。`make db-docs` で再生成。
+詳細: [docs-db/entities.md](docs-db/entities.md), [docs-db/access-patterns.md](docs-db/access-patterns.md)
+
 ## AWS リージョン
 
 ap-northeast-1 (東京)
