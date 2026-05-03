@@ -31,6 +31,12 @@ web/node_modules/
 web/.svelte-kit/
 web/build/
 
+# Playwright MCP (visual snapshots from MCP browser tool)
+.playwright-mcp/
+
+# Local tool binaries (tbls, etc.)
+bin/
+
 # Flox
 .flox/run/
 .flox/cache/
