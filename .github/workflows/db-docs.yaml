@@ -1,6 +1,6 @@
 name: DB Schema Docs Drift
 
-# tbls diff で docs-db/schema/ と live DynamoDB Local の差分を検出する。
+# tbls diff で docs/db/schema/ と live DynamoDB Local の差分を検出する。
 # 守備範囲: PK/SK の型変更 / テーブル追加削除 / .tbls.yml の comment 変更が
 # 反映されてないケース。手書きの entities.md / access-patterns.md は対象外。
 
@@ -11,7 +11,7 @@ on:
       - "api/store/store.go"
       - "api/model/url.go"
       - ".tbls.yml"
-      - "docs-db/schema/**"
+      - "docs/db/schema/**"
       - ".github/workflows/db-docs.yaml"
   workflow_dispatch:
 

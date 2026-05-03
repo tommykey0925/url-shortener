@@ -81,8 +81,8 @@ cd infra && terraform destroy   # 撤去 (使わないときは必ず destroy)
 
 ## DB スキーマドキュメント
 
-`docs-db/` に DynamoDB スキーマドキュメント。`make db-docs` で再生成。
-詳細: [docs-db/entities.md](docs-db/entities.md), [docs-db/access-patterns.md](docs-db/access-patterns.md)
+`docs/db/` に DynamoDB スキーマドキュメント。`make db-docs` で再生成。
+詳細: [docs/db/entities.md](docs/db/entities.md), [docs/db/access-patterns.md](docs/db/access-patterns.md)
 
 ## AWS リージョン
 

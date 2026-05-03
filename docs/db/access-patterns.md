@@ -6,23 +6,23 @@ url-shortener は 2 テーブルで合計 **8 アクセスパターン** (Increm
 
 | # | Use case | Go method | Table | PK | SK / Filter | Source |
 |---|---|---|---|---|---|---|
-| 1 | URL を新規登録 | `Put` | `url-shortener` | `code` | - | [store.go:56](../api/store/store.go#L56) |
-| 2 | code 単発取得 | `Get` | `url-shortener` | `code` (eq) | - | [store.go:81](../api/store/store.go#L81) |
-| 3 | クリック数 +1 (URL 側) | `IncrementClicks` | `url-shortener` | `code` (eq) | `UpdateExpression: SET clicks = clicks + :inc` | [store.go:102](../api/store/store.go#L102) |
-| 4 | 当日 daily stat に +1 | `IncrementClicks` | `url-shortener-stats` | `code` (eq) | `date = today` (eq); `SET clicks = if_not_exists(clicks, :zero) + :inc` | [store.go:118](../api/store/store.go#L118) |
-| 5 | 過去 N 日の daily stats 取得 | `GetClickStats` | `url-shortener-stats` | `code` (eq) | `#d (= date) >= startDate` (Range); `ScanIndexForward=False` で降順 | [store.go:136](../api/store/store.go#L136) |
-| 6 | safe_status 更新 (Lambda monitor) | `UpdateSafeStatus` | `url-shortener` | `code` (eq) | `UpdateExpression: SET safe_status = :s` | [store.go:162](../api/store/store.go#L162) |
-| 7 | URL 削除 | `Delete` | `url-shortener` | `code` (eq) | `DeleteItem` | [store.go:176](../api/store/store.go#L176) |
-| 8 | 全 URL 一覧 (admin) | `List` | `url-shortener` | (全件 Scan) | - | [store.go:186](../api/store/store.go#L186) |
+| 1 | URL を新規登録 | `Put` | `url-shortener` | `code` | - | [store.go:56](https://github.com/tommykey-apps/url-shortener/blob/main/api/store/store.go#L56) |
+| 2 | code 単発取得 | `Get` | `url-shortener` | `code` (eq) | - | [store.go:81](https://github.com/tommykey-apps/url-shortener/blob/main/api/store/store.go#L81) |
+| 3 | クリック数 +1 (URL 側) | `IncrementClicks` | `url-shortener` | `code` (eq) | `UpdateExpression: SET clicks = clicks + :inc` | [store.go:102](https://github.com/tommykey-apps/url-shortener/blob/main/api/store/store.go#L102) |
+| 4 | 当日 daily stat に +1 | `IncrementClicks` | `url-shortener-stats` | `code` (eq) | `date = today` (eq); `SET clicks = if_not_exists(clicks, :zero) + :inc` | [store.go:118](https://github.com/tommykey-apps/url-shortener/blob/main/api/store/store.go#L118) |
+| 5 | 過去 N 日の daily stats 取得 | `GetClickStats` | `url-shortener-stats` | `code` (eq) | `#d (= date) >= startDate` (Range); `ScanIndexForward=False` で降順 | [store.go:136](https://github.com/tommykey-apps/url-shortener/blob/main/api/store/store.go#L136) |
+| 6 | safe_status 更新 (Lambda monitor) | `UpdateSafeStatus` | `url-shortener` | `code` (eq) | `UpdateExpression: SET safe_status = :s` | [store.go:162](https://github.com/tommykey-apps/url-shortener/blob/main/api/store/store.go#L162) |
+| 7 | URL 削除 | `Delete` | `url-shortener` | `code` (eq) | `DeleteItem` | [store.go:176](https://github.com/tommykey-apps/url-shortener/blob/main/api/store/store.go#L176) |
+| 8 | 全 URL 一覧 (admin) | `List` | `url-shortener` | (全件 Scan) | - | [store.go:186](https://github.com/tommykey-apps/url-shortener/blob/main/api/store/store.go#L186) |
 
 ## ScanIndexForward
 
-`GetClickStats` (#5) は `ScanIndexForward=False` で SK 降順 = **新しい日付が先** ([store.go:149](../api/store/store.go#L149))。
+`GetClickStats` (#5) は `ScanIndexForward=False` で SK 降順 = **新しい日付が先** ([store.go:149](https://github.com/tommykey-apps/url-shortener/blob/main/api/store/store.go#L149))。
 これは `date` を SK に持つ設計が前提。
 
 ## DynamoDB 予約語の escape
 
-`date` は DynamoDB の予約語のため、`GetClickStats` ([store.go:142](../api/store/store.go#L142)) では
+`date` は DynamoDB の予約語のため、`GetClickStats` ([store.go:142](https://github.com/tommykey-apps/url-shortener/blob/main/api/store/store.go#L142)) では
 `ExpressionAttributeNames: {"#d": "date"}` で escape している。`KeyConditionExpression` 内では `#d` 表記。
 
 ## Anti-patterns / Known concerns
@@ -46,7 +46,7 @@ url-shortener は 2 テーブルで合計 **8 アクセスパターン** (Increm
 `Put` (`store.go:56`) 時に `Clicks: 0` を明示初期化しているので問題ないが、移行時は注意。
 
 - 改善案: `clicks = if_not_exists(clicks, :zero) + :inc` の方が安全
-- stats 側は既に `if_not_exists` を使っている ([store.go:124](../api/store/store.go#L124))
+- stats 側は既に `if_not_exists` を使っている ([store.go:124](https://github.com/tommykey-apps/url-shortener/blob/main/api/store/store.go#L124))
 
 ### A4. `UpdateSafeStatus` (#6) は ConditionExpression なし
 `store.go:162-174` は `safe_status` を ブラインド上書き。Lambda の `monitor` から同時実行

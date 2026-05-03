@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "docs/swagger.yaml"
+      - "docs/db/**"
       - ".github/workflows/pages.yaml"
   workflow_dispatch:
 
@@ -35,7 +36,15 @@ jobs:
           cp docs/swagger.yaml _site/
           sed -i 's|https://petstore.swagger.io/v2/swagger.json|swagger.yaml|g' _site/swagger-initializer.js
 
+      # Jekyll で docs/db/ を HTML 化 (tbls 出力 Markdown と手書き補足を Pages 上で読める形に)
       - uses: actions/configure-pages@v5
+      - uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./docs/db
+          destination: ./_jekyll_db
+
+      - name: Merge db docs into _site
+        run: cp -r _jekyll_db _site/db
 
       - uses: actions/upload-pages-artifact@v3
 
